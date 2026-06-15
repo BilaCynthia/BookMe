@@ -1,0 +1,260 @@
+/* ==========================================================================
+   Generated Design Tokens (CSS Variables)
+   ========================================================================== */
+
+:root {
+  /* --- Typography --- */
+  --typography-display-large-font-size: 62px;
+  --typography-display-large-text-decoration: none;
+  --typography-display-large-font-family: Inter;
+  --typography-display-large-font-weight: 400;
+  --typography-display-large-font-style: normal;
+  --typography-display-large-font-stretch: normal;
+  --typography-display-large-letter-spacing: -2.79px;
+  --typography-display-large-line-height: 93px;
+  --typography-display-large-paragraph-indent: 0px;
+  --typography-display-large-paragraph-spacing: 0px;
+  --typography-display-large-text-case: none;
+
+  --typography-display-medium-font-size: 56px;
+  --typography-display-medium-text-decoration: none;
+  --typography-display-medium-font-family: Inter;
+  --typography-display-medium-font-weight: 400;
+  --typography-display-medium-font-style: normal;
+  --typography-display-medium-font-stretch: normal;
+  --typography-display-medium-letter-spacing: -1.96px;
+  --typography-display-medium-line-height: 84px;
+  --typography-display-medium-paragraph-indent: 0px;
+  --typography-display-medium-paragraph-spacing: 0px;
+  --typography-display-medium-text-case: none;
+
+  --typography-display-small-font-size: 44px;
+  --typography-display-small-text-decoration: none;
+  --typography-display-small-font-family: Inter;
+  --typography-display-small-font-weight: 400;
+  --typography-display-small-font-style: normal;
+  --typography-display-small-font-stretch: normal;
+  --typography-display-small-letter-spacing: -1.1px;
+  --typography-display-small-line-height: 66px;
+  --typography-display-small-paragraph-indent: 0px;
+  --typography-display-small-paragraph-spacing: 0px;
+  --typography-display-small-text-case: none;
+
+  --typography-headline-large-font-size: 38px;
+  --typography-headline-large-text-decoration: none;
+  --typography-headline-large-font-family: Inter;
+  --typography-headline-large-font-weight: 500;
+  --typography-headline-large-font-style: normal;
+  --typography-headline-large-font-stretch: normal;
+  --typography-headline-large-letter-spacing: -0.836px;
+  --typography-headline-large-line-height: 57px;
+  --typography-headline-large-paragraph-indent: 0px;
+  --typography-headline-large-paragraph-spacing: 0px;
+  --typography-headline-large-text-case: none;
+
+  --typography-headline-medium-font-size: 32px;
+  --typography-headline-medium-text-decoration: none;
+  --typography-headline-medium-font-family: Inter;
+  --typography-headline-medium-font-weight: 500;
+  --typography-headline-medium-font-style: normal;
+  --typography-headline-medium-font-stretch: normal;
+  --typography-headline-medium-letter-spacing: -0.576px;
+  --typography-headline-medium-line-height: 48px;
+  --typography-headline-medium-paragraph-indent: 0px;
+  --typography-headline-medium-paragraph-spacing: 0px;
+  --typography-headline-medium-text-case: none;
+
+  --typography-headline-small-font-size: 28px;
+  --typography-headline-small-text-decoration: none;
+  --typography-headline-small-font-family: Inter;
+  --typography-headline-small-font-weight: 500;
+  --typography-headline-small-font-style: normal;
+  --typography-headline-small-font-stretch: normal;
+  --typography-headline-small-letter-spacing: -0.336px;
+  --typography-headline-small-line-height: 39px;
+  --typography-headline-small-paragraph-indent: 0px;
+  --typography-headline-small-paragraph-spacing: 0px;
+  --typography-headline-small-text-case: none;
+
+  --typography-title-large-font-size: 28px;
+  --typography-title-large-text-decoration: none;
+  --typography-title-large-font-family: Inter;
+  --typography-title-large-font-weight: 500;
+  --typography-title-large-font-style: normal;
+  --typography-title-large-font-stretch: normal;
+  --typography-title-large-letter-spacing: -0.56px;
+  --typography-title-large-line-height: 42px;
+  --typography-title-large-paragraph-indent: 0px;
+  --typography-title-large-paragraph-spacing: 0px;
+  --typography-title-large-text-case: none;
+
+  --typography-title-medium-font-size: 24px;
+  --typography-title-medium-text-decoration: none;
+  --typography-title-medium-font-family: Inter;
+  --typography-title-medium-font-weight: 500;
+  --typography-title-medium-font-style: normal;
+  --typography-title-medium-font-stretch: normal;
+  --typography-title-medium-letter-spacing: -0.336px;
+  --typography-title-medium-line-height: 36px;
+  --typography-title-medium-paragraph-indent: 0px;
+  --typography-title-medium-paragraph-spacing: 0px;
+  --typography-title-medium-text-case: none;
+
+  --typography-title-small-font-size: 20px;
+  --typography-title-small-text-decoration: none;
+  --typography-title-small-font-family: Inter;
+  --typography-title-small-font-weight: 500;
+  --typography-title-small-font-style: normal;
+  --typography-title-small-font-stretch: normal;
+  --typography-title-small-letter-spacing: -0.16px;
+  --typography-title-small-line-height: 30px;
+  --typography-title-small-paragraph-indent: 0px;
+  --typography-title-small-paragraph-spacing: 0px;
+  --typography-title-small-text-case: none;
+
+  --typography-body-large-font-size: 18px;
+  --typography-body-large-text-decoration: none;
+  --typography-body-large-font-family: Inter;
+  --typography-body-large-font-weight: 400;
+  --typography-body-large-font-style: normal;
+  --typography-body-large-font-stretch: normal;
+  --typography-body-large-letter-spacing: -0.27px;
+  --typography-body-large-line-height: 27px;
+  --typography-body-large-paragraph-indent: 0px;
+  --typography-body-large-paragraph-spacing: 0px;
+  --typography-body-large-text-case: none;
+
+  --typography-body-medium-font-size: 16px;
+  --typography-body-medium-text-decoration: none;
+  --typography-body-medium-font-family: Inter;
+  --typography-body-medium-font-weight: 400;
+  --typography-body-medium-font-style: normal;
+  --typography-body-medium-font-stretch: normal;
+  --typography-body-medium-letter-spacing: -0.192px;
+  --typography-body-medium-line-height: 24px;
+  --typography-body-medium-paragraph-indent: 0px;
+  --typography-body-medium-paragraph-spacing: 0px;
+  --typography-body-medium-text-case: none;
+
+  --typography-body-small-font-size: 12px;
+  --typography-body-small-text-decoration: none;
+  --typography-body-small-font-family: Inter;
+  --typography-body-small-font-weight: 400;
+  --typography-body-small-font-style: normal;
+  --typography-body-small-font-stretch: normal;
+  --typography-body-small-letter-spacing: -0.096px;
+  --typography-body-small-line-height: 18px;
+  --typography-body-small-paragraph-indent: 0px;
+  --typography-body-small-paragraph-spacing: 0px;
+  --typography-body-small-text-case: none;
+
+  --typography-label-large-font-size: 20px;
+  --typography-label-large-text-decoration: none;
+  --typography-label-large-font-family: Inter;
+  --typography-label-large-font-weight: 500;
+  --typography-label-large-font-style: normal;
+  --typography-label-large-font-stretch: normal;
+  --typography-label-large-letter-spacing: -0.3px;
+  --typography-label-large-line-height: 30px;
+  --typography-label-large-paragraph-indent: 0px;
+  --typography-label-large-paragraph-spacing: 0px;
+  --typography-label-large-text-case: none;
+
+  --typography-label-medium-font-size: 18px;
+  --typography-label-medium-text-decoration: none;
+  --typography-label-medium-font-family: Inter;
+  --typography-label-medium-font-weight: 500;
+  --typography-label-medium-font-style: normal;
+  --typography-label-medium-font-stretch: normal;
+  --typography-label-medium-letter-spacing: -0.216px;
+  --typography-label-medium-line-height: 27px;
+  --typography-label-medium-paragraph-indent: 0px;
+  --typography-label-medium-paragraph-spacing: 0px;
+  --typography-label-medium-text-case: none;
+
+  --typography-label-small-font-size: 16px;
+  --typography-label-small-text-decoration: none;
+  --typography-label-small-font-family: Inter;
+  --typography-label-small-font-weight: 500;
+  --typography-label-small-font-style: normal;
+  --typography-label-small-font-stretch: normal;
+  --typography-label-small-letter-spacing: -0.128px;
+  --typography-label-small-line-height: 18px;
+  --typography-label-small-paragraph-indent: 0px;
+  --typography-label-small-paragraph-spacing: 0px;
+  --typography-label-small-text-case: none;
+
+  /* --- Color Roles (Light Theme) --- */
+  --color-primary: hsl(158, 37%, 17%);
+  --color-on-primary: hsl(0, 0%, 100%);
+  --color-primary-container: hsl(154, 26%, 74%);
+  --color-on-primary-container: hsl(158, 26%, 24%);
+  --color-secondary: hsl(36, 59%, 31%);
+  --color-on-secondary: hsl(0, 0%, 100%);
+  --color-secondary-container: hsl(34, 78%, 71%);
+  --color-on-secondary-container: hsl(38, 85%, 21%);
+  --color-tertiary: hsl(158, 23%, 33%);
+  --color-on-tertiary: hsl(0, 0%, 100%);
+  --color-tertiary-container: hsl(156, 29%, 73%);
+  --color-on-tertiary-container: hsl(159, 32%, 23%);
+  --color-error: hsl(0, 75%, 40%);
+  --color-on-error: hsl(0, 0%, 100%);
+  --color-error-container: hsl(0, 75%, 80%);
+  --color-on-error-container: hsl(0, 75%, 30%);
+  --color-background: hsl(30, 67%, 99%);
+  --color-on-background: hsl(120, 2%, 11%);
+  --color-surface: hsl(30, 33%, 98%);
+  --color-on-surface: hsl(120, 2%, 11%);
+  --color-surface-variant: hsl(36, 8%, 88%);
+  --color-on-surface-variant: hsl(60, 1%, 27%);
+  --color-outline: hsl(45, 2%, 67%);
+  --color-outline-variant: hsl(36, 8%, 88%);
+  --color-inverse-surface: hsl(60, 1%, 19%);
+  --color-inverse-on-surface: hsl(30, 13%, 94%);
+  --color-inverse-primary: hsl(154, 26%, 74%);
+  --color-surface-dim: hsl(40, 4%, 85%);
+  --color-surface-bright: hsl(30, 33%, 98%);
+  --color-surface-container-lowest: hsl(0, 0%, 100%);
+  --color-surface-container-low: hsl(30, 17%, 97%);
+  --color-surface-container: hsl(30, 11%, 93%);
+  --color-surface-container-high: hsl(30, 9%, 91%);
+  --color-surface-container-highest: hsl(30, 13%, 94%);
+}
+
+.dark {
+  /* --- Color Roles (Dark Theme) --- */
+  --color-primary: hsl(158, 37%, 17%);
+  --color-on-primary: hsl(159, 42%, 15%);
+  --color-primary-container: hsl(158, 26%, 24%);
+  --color-on-primary-container: hsl(152, 47%, 85%);
+  --color-secondary: hsl(34, 78%, 71%);
+  --color-on-secondary: hsl(37, 100%, 14%);
+  --color-secondary-container: hsl(38, 85%, 21%);
+  --color-on-secondary-container: hsl(33, 100%, 85%);
+  --color-tertiary: hsl(156, 29%, 73%);
+  --color-on-tertiary: hsl(162, 57%, 14%);
+  --color-tertiary-container: hsl(159, 32%, 23%);
+  --color-on-tertiary-container: hsl(154, 53%, 84%);
+  --color-error: hsl(0, 75%, 80%);
+  --color-on-error: hsl(0, 75%, 20%);
+  --color-error-container: hsl(0, 75%, 30%);
+  --color-on-error-container: hsl(0, 75%, 90%);
+  --color-background: hsl(60, 1%, 6%);
+  --color-on-background: hsl(30, 7%, 89%);
+  --color-surface: hsl(60, 1%, 6%);
+  --color-on-surface: hsl(30, 7%, 89%);
+  --color-surface-variant: hsl(60, 1%, 27%);
+  --color-on-surface-variant: hsl(36, 4%, 77%);
+  --color-outline: hsl(60, 1%, 56%);
+  --color-outline-variant: hsl(60, 1%, 27%);
+  --color-inverse-surface: hsl(30, 7%, 89%);
+  --color-inverse-on-surface: hsl(60, 1%, 19%);
+  --color-inverse-primary: hsl(156, 19%, 33%);
+  --color-surface-dim: hsl(60, 1%, 6%);
+  --color-surface-bright: hsl(60, 1%, 24%);
+  --color-surface-container-lowest: hsl(60, 1%, 4%);
+  --color-surface-container-low: hsl(120, 2%, 11%);
+  --color-surface-container: hsl(60, 1%, 12%);
+  --color-surface-container-high: hsl(60, 1%, 17%);
+  --color-surface-container-highest: hsl(60, 1%, 22%);
+}

@@ -1,27 +1,29 @@
+@import "../tokens/tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --radius: 0.5rem;
+    --color-primary-hover: hsl(158, 30%, 36%);
+    --color-secondary-hover: hsl(34, 65%, 56%);
+    --color-error-hover: hsl(0, 75%, 35%);
+  }
+  
+  .dark {
+    --color-primary-hover: hsl(158, 30%, 36%);
+    --color-secondary-hover: hsl(34, 65%, 56%);
+    --color-error-hover: hsl(0, 75%, 35%);
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }

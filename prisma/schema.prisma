@@ -1,0 +1,391 @@
+// prisma/schema.prisma
+// BookMe — Full Database Schema
+// Rules:
+//   - All monetary values stored in kobo (Int). Never Float for money.
+//   - All IDs use @default(cuid())
+//   - Booking.basePrice and depositPercentage are price snapshots — immutable after creation
+//   - Reservation handles the 15-min PENDING_LOCK only
+//   - AvailabilitySlot handles the permanent BLOCKED state after payment
+
+generator client {
+  provider        = "prisma-client-js"
+  engineType      = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────
+
+enum VendorCategory {
+  PHOTOGRAPHER
+  VIDEOGRAPHER
+  DECORATOR
+  CATERER
+  MC_DJ
+  MAKEUP_ARTIST
+  EVENT_PLANNER
+  OTHER
+}
+
+enum AvailabilityStatus {
+  OPEN         // Vendor has opened this date — client can select it
+  PENDING_LOCK // A client is mid-checkout — locked for 15 minutes
+  BLOCKED      // Payment confirmed — date permanently blocked
+  CLOSED       // Vendor manually closed this date — no booking possible
+}
+
+enum BookingStatus {
+  PENDING    // Booking created, awaiting payment
+  CONFIRMED  // Payment verified by Flutterwave webhook
+  EXPIRED    // PENDING for > 60 minutes with no payment (cron job)
+  CANCELLED  // Cancelled post-confirmation (Post-MVP vendor cancellation)
+  COMPLETED  // Event date has passed (Post-MVP cron job)
+}
+
+enum PaymentStatus {
+  PENDING  // Payment initiated but not yet confirmed
+  SUCCESS  // Payment confirmed by Flutterwave
+  FAILED   // Payment failed or declined
+  REFUNDED // Deposit refunded (Post-MVP)
+}
+
+enum RefundStatus {
+  PENDING   // Refund requested, awaiting admin review
+  PROCESSED // Refund completed successfully
+  FAILED    // Refund could not be processed
+}
+
+// ─────────────────────────────────────────────────────────
+// VENDOR
+// Core user entity. Event service provider.
+// ─────────────────────────────────────────────────────────
+
+model Vendor {
+  id              String          @id @default(cuid())
+  email           String          @unique
+  name            String?
+  slug            String?         @unique
+  category        VendorCategory?
+  bio             String?         @db.VarChar(300)
+  location        String?
+  contactEmail    String?
+  profilePhoto    String?         // Cloudinary URL
+  instagramHandle String?
+  whatsappNumber  String?
+  isActive        Boolean         @default(true)
+  profileComplete Boolean         @default(false)
+  passwordHash    String?
+  emailVerified   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  services          Service[]
+  availabilitySlots AvailabilitySlot[]
+  bookings          Booking[]
+  reservations      Reservation[]
+  portfolioImages   PortfolioImage[]
+  payments          Payment[]
+  refunds           Refund[]
+  accounts          Account[]
+  sessions          Session[]
+
+  @@index([slug])
+  @@index([category])
+  @@index([isActive])
+  @@map("vendors")
+}
+
+// ─────────────────────────────────────────────────────────
+// SERVICE
+// A bookable offering defined by the vendor.
+// ─────────────────────────────────────────────────────────
+
+model Service {
+  id                String  @id @default(cuid())
+  vendorId          String
+  name              String  @db.VarChar(100)
+  description       String  @db.VarChar(200)
+  basePrice         Int     // Stored in kobo. Min 100,000 (= NGN 1,000)
+  depositPercentage Int     // 10–100 inclusive
+  isActive          Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  vendor   Vendor    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@index([vendorId])
+  @@index([vendorId, isActive])
+  @@map("services")
+}
+
+// ─────────────────────────────────────────────────────────
+// AVAILABILITY SLOT
+// One record per (vendor, date). Controls calendar display state.
+// PENDING_LOCK → set during booking initiation (15-min window)
+// BLOCKED      → set permanently after payment confirmed
+// ─────────────────────────────────────────────────────────
+
+model AvailabilitySlot {
+  id        String             @id @default(cuid())
+  vendorId  String
+  date      DateTime           @db.Date
+  status    AvailabilityStatus @default(OPEN)
+  bookingId String?            @unique // FK to Booking — set when PENDING_LOCK or BLOCKED
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  vendor  Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id])
+
+  // One slot record per vendor per date — enforced at DB level
+  @@unique([vendorId, date])
+  @@index([vendorId, status])
+  @@index([date])
+  @@map("availability_slots")
+}
+
+// ─────────────────────────────────────────────────────────
+// BOOKING
+// A reservation request from a client.
+// Price fields are snapshots — immutable after creation.
+// ─────────────────────────────────────────────────────────
+
+model Booking {
+  id               String        @id @default(cuid())
+  reference        String        @unique // Human-readable: "BKM-XXXXXXXX"
+  vendorId         String
+  serviceId        String
+
+  // Client information — never exposed on public API routes
+  clientName       String
+  clientEmail      String
+  clientPhone      String
+  eventDescription String?       @db.VarChar(200)
+
+  // Event details
+  eventDate        DateTime      @db.Date
+
+  // Price snapshot — captured at booking creation, NEVER changes
+  // These values are copied from Service at creation time.
+  // Edits to the Service after booking creation must NOT affect these.
+  basePrice        Int           // Kobo snapshot from Service.basePrice
+  depositPercentage Int          // Snapshot from Service.depositPercentage
+  depositAmount    Int           // Calculated: Math.floor(basePrice * depositPercentage / 100)
+
+  // Status
+  status           BookingStatus @default(PENDING)
+
+  // Flutterwave references
+  txRef            String?       @unique // Format: "bookme-[id]-[timestamp]"
+  paymentReference String?       // Flutterwave payment reference
+
+  // Timestamps
+  paidAt           DateTime?
+  expiresAt        DateTime      // PENDING expires after 60 minutes — used by cron
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  vendor           Vendor            @relation(fields: [vendorId], references: [id])
+  service          Service           @relation(fields: [serviceId], references: [id])
+  availabilitySlot AvailabilitySlot?
+  payment          Payment?
+  reservation      Reservation?
+  refund           Refund?
+
+  @@index([vendorId, status])
+  @@index([txRef])
+  @@index([expiresAt, status]) // Critical for cron expiry job
+  @@index([clientEmail])       // Future: client booking history
+  @@map("bookings")
+}
+
+// ─────────────────────────────────────────────────────────
+// RESERVATION
+// Tracks the 15-minute PENDING_LOCK on a date while a client's
+// payment is in progress. Separate from AvailabilitySlot.
+// AvailabilitySlot status is set to PENDING_LOCK when this is created.
+// On payment: Reservation → linked to Booking, AvailabilitySlot → BLOCKED
+// On expiry:  Reservation.isActive = false, AvailabilitySlot → OPEN
+// ─────────────────────────────────────────────────────────
+
+model Reservation {
+  id        String   @id @default(cuid())
+  vendorId  String
+  date      DateTime @db.Date
+  bookingId String?  @unique // FK to Booking — set once booking is created
+  lockedAt  DateTime @default(now())
+  expiresAt DateTime
+  isActive  Boolean  @default(true)
+
+  // Relations
+  vendor  Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id])
+
+  @@index([vendorId, date])
+  @@index([expiresAt, isActive]) // For cron job that expires stale reservations
+  @@map("reservations")
+}
+
+// ─────────────────────────────────────────────────────────
+// PAYMENT
+// Record of a deposit payment. One-to-one with a confirmed Booking.
+// Created only when booking is CONFIRMED via webhook.
+// ─────────────────────────────────────────────────────────
+
+model Payment {
+  id        String        @id @default(cuid())
+  bookingId String        @unique // One payment per booking
+  vendorId  String
+  amount    Int           // Kobo — must match Booking.depositAmount
+  currency  String        @default("NGN")
+  flwRef    String?       // Flutterwave flw_ref
+  txRef     String        @unique // Matches Booking.txRef
+  status    PaymentStatus @default(PENDING)
+  paidAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  booking Booking @relation(fields: [bookingId], references: [id])
+  vendor  Vendor  @relation(fields: [vendorId], references: [id])
+  refund  Refund?
+
+  @@index([vendorId])
+  @@index([txRef])
+  @@map("payments")
+}
+
+// ─────────────────────────────────────────────────────────
+// REFUND
+// Tracks refund requests for vendor-cancelled bookings.
+// MVP: manually processed by admin. Post-MVP: Flutterwave API.
+// ─────────────────────────────────────────────────────────
+
+model Refund {
+  id          String       @id @default(cuid())
+  bookingId   String       @unique
+  vendorId    String
+  paymentId   String?      @unique
+  amount      Int          // Kobo — full deposit amount for vendor cancellations
+  reason      String?      @db.VarChar(300)
+  status      RefundStatus @default(PENDING)
+  initiatedAt DateTime     @default(now())
+  resolvedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  booking Booking  @relation(fields: [bookingId], references: [id])
+  vendor  Vendor   @relation(fields: [vendorId], references: [id])
+  payment Payment? @relation(fields: [paymentId], references: [id])
+
+  @@index([vendorId])
+  @@index([status])
+  @@map("refunds")
+}
+
+
+
+// ─────────────────────────────────────────────────────────
+// WEBHOOK EVENT
+// Audit log for every incoming Flutterwave webhook.
+// Enables idempotency: processed = true means skip re-processing.
+// Records are NEVER deleted — they are a permanent audit trail.
+// ─────────────────────────────────────────────────────────
+
+model WebhookEvent {
+  id          String    @id @default(cuid())
+  provider    String    @default("flutterwave")
+  eventType   String
+  payload     Json      // Full raw webhook payload stored for debugging
+  txRef       String?   // Extracted from payload for fast lookup
+  processed   Boolean   @default(false)
+  processedAt DateTime?
+  error       String?   // Error message if processing failed
+
+  createdAt DateTime @default(now())
+
+  @@index([txRef])
+  @@index([processed])
+  @@map("webhook_events")
+}
+
+// ─────────────────────────────────────────────────────────
+// PORTFOLIO IMAGE
+// Cloudinary-hosted images for the vendor's public profile gallery.
+// Max 10 images per vendor — enforced at application level.
+// ─────────────────────────────────────────────────────────
+
+model PortfolioImage {
+  id        String @id @default(cuid())
+  vendorId  String
+  url       String // Cloudinary delivery URL
+  publicId  String // Cloudinary public_id — required for deletion
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("portfolio_images")
+}
+
+// ─────────────────────────────────────────────────────────
+// NEXTAUTH MODELS
+// ─────────────────────────────────────────────────────────
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user Vendor @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         Vendor   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
