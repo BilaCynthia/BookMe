@@ -7,12 +7,10 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 
 export default function SignupPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState(false)
-  const [isGoogleLoading, setIsGoogleLoading] = React.useState(false)
   const [error, setError] = React.useState("")
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -21,12 +19,30 @@ export default function SignupPage() {
     setError("")
 
     const formData = new FormData(event.currentTarget)
+    const name = formData.get("name") as string
     const email = formData.get("email") as string
     const password = formData.get("password") as string
-    const businessName = formData.get("businessName") as string
 
     if (password.length < 8) {
       setError("Password must be at least 8 characters long.")
+      setIsLoading(false)
+      return
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      setError("Password must contain at least one uppercase letter.")
+      setIsLoading(false)
+      return
+    }
+
+    if (!/[0-9]/.test(password)) {
+      setError("Password must contain at least one number.")
+      setIsLoading(false)
+      return
+    }
+
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      setError("Password must contain at least one special character.")
       setIsLoading(false)
       return
     }
@@ -35,7 +51,7 @@ export default function SignupPage() {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, businessName }),
+        body: JSON.stringify({ email, password, name }),
       })
 
       const data = await response.json()
@@ -67,51 +83,27 @@ export default function SignupPage() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1 text-center">
-        <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
-        <CardDescription>
-          Enter your email below to create your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Button 
-          variant="outline" 
-          fullWidth 
-          onClick={() => {
-            setIsGoogleLoading(true)
-            signIn("google", { callbackUrl: "/dashboard" })
-          }}
-          disabled={isLoading || isGoogleLoading}
-        >
-          {isGoogleLoading ? (
-            <span className="animate-spin mr-2">◷</span>
-          ) : (
-            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-            </svg>
-          )}
-          Continue with Google
-        </Button>
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-          </div>
-        </div>
-        <form onSubmit={onSubmit} className="space-y-4">
+    <div className="w-full space-y-8">
+      <div className="space-y-2 text-center md:text-left">
+        <h1 className="font-heading text-3xl font-extrabold tracking-tight text-foreground">
+          Create an account
+        </h1>
+        <p className="text-base text-subtle">
+          Enter your details below to create your account
+        </p>
+      </div>
+
+      <form onSubmit={onSubmit} className="space-y-5">
+        <div className="space-y-4">
           <Input
-            id="businessName"
-            name="businessName"
+            id="name"
+            name="name"
             type="text"
-            label="Business Name"
-            placeholder="Your Business Ltd."
-            disabled={isLoading || isGoogleLoading}
+            label="Name"
+            placeholder="John Doe or Emeka Photography"
+            disabled={isLoading}
+            className="h-12 rounded-xl bg-surface border-border/60 focus:border-primary transition-colors"
+            required
           />
           <Input
             id="email"
@@ -120,7 +112,8 @@ export default function SignupPage() {
             label="Email"
             placeholder="m@example.com"
             autoComplete="email"
-            disabled={isLoading || isGoogleLoading}
+            disabled={isLoading}
+            className="h-12 rounded-xl bg-surface border-border/60 focus:border-primary transition-colors"
             required
           />
           <Input
@@ -130,23 +123,34 @@ export default function SignupPage() {
             label="Password"
             placeholder="Minimum 8 characters"
             autoComplete="new-password"
-            disabled={isLoading || isGoogleLoading}
+            disabled={isLoading}
+            className="h-12 rounded-xl bg-surface border-border/60 focus:border-primary transition-colors"
             required
           />
-          {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-          <Button type="submit" fullWidth isLoading={isLoading} disabled={isGoogleLoading}>
-            Sign Up
-          </Button>
-        </form>
-      </CardContent>
-      <CardFooter className="flex flex-col space-y-4">
-        <div className="text-sm text-center text-muted-foreground">
-          Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:underline underline-offset-4">
-            Sign in
-          </Link>
         </div>
-      </CardFooter>
-    </Card>
+
+        {error && (
+          <p className="text-sm font-medium text-destructive bg-destructive/10 p-3 rounded-lg border border-destructive/20">
+            {error}
+          </p>
+        )}
+
+        <Button 
+          type="submit" 
+          fullWidth 
+          isLoading={isLoading} 
+          className="h-12 rounded-xl text-base font-semibold shadow-md transition-all hover:shadow-lg mt-2"
+        >
+          Sign Up
+        </Button>
+      </form>
+
+      <div className="text-center text-sm text-subtle">
+        Already have an account?{" "}
+        <Link href="/login" className="font-bold text-primary hover:underline underline-offset-4 transition-all">
+          Sign in
+        </Link>
+      </div>
+    </div>
   )
 }

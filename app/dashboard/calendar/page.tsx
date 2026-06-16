@@ -3,9 +3,9 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
-import { Button } from "@/components/ui/Button"
 import { format, startOfToday } from "date-fns"
-import { Calendar as CalendarIcon, Clock, Plus } from "lucide-react"
+import { Calendar as CalendarIcon, Clock } from "lucide-react"
+import { CalendarActions, EmptyCalendarAction } from "@/components/dashboard/CalendarActions"
 
 export const metadata = {
   title: "Calendar - BookMe",
@@ -37,15 +37,14 @@ export default async function CalendarPage() {
     },
   })
 
-  // Group slots by month and year for a nicer UI, or just display them as a list
-  
+  // Pass existing open dates to the modal so it can grey them out
+  const existingDates = slots.map((s) => s.date.toISOString())
+
   return (
     <div className="flex-1 space-y-8 p-8 pt-6 max-w-5xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-4 sm:space-y-0">
         <h2 className="text-3xl font-bold tracking-tight text-foreground">Calendar</h2>
-        <Button disabled className="w-full sm:w-auto">
-          <Plus className="mr-2 h-4 w-4" /> Open New Dates
-        </Button>
+        <CalendarActions existingDates={existingDates} />
       </div>
 
       <Card>
@@ -63,7 +62,7 @@ export default async function CalendarPage() {
                <p className="mb-4 mt-2 text-sm text-muted-foreground max-w-sm">
                  You haven&apos;t opened any dates yet. Open dates so clients can start booking you.
                </p>
-               <Button disabled>Open Dates</Button>
+               <EmptyCalendarAction existingDates={existingDates} />
              </div>
           ) : (
             <div className="space-y-4">
@@ -110,7 +109,7 @@ export default async function CalendarPage() {
                       {slot.status === "PENDING_LOCK" && (
                         <div className="flex items-center space-x-2">
                           <Clock className="h-3 w-3 text-amber-500 animate-pulse" />
-                          <Badge variant="warning" className="bg-amber-100 text-amber-800 hover:bg-amber-200 border-0">
+                          <Badge variant="outline" className="bg-amber-100 text-amber-800 hover:bg-amber-200 border-0">
                             Pending Payment
                           </Badge>
                         </div>
@@ -119,17 +118,6 @@ export default async function CalendarPage() {
                         <Badge variant="outline" className="bg-muted text-muted-foreground">
                           Closed
                         </Badge>
-                      )}
-                      
-                      {slot.status === "OPEN" && (
-                         <Button variant="ghost" size="sm" className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10" disabled>
-                           Close Date
-                         </Button>
-                      )}
-                      {isBooked && slot.bookingId && (
-                         <Button variant="outline" size="sm" className="h-8" disabled>
-                           View Details
-                         </Button>
                       )}
                     </div>
                   </div>

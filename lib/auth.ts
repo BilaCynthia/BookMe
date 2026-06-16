@@ -1,6 +1,5 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/db"
@@ -21,10 +20,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/login",
   },
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -63,58 +58,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider === "google") {
-        if (!user.email) return false
-
-        const existingVendor = await prisma.vendor.findUnique({
-          where: { email: user.email },
-          include: { accounts: true },
-        })
-
-        if (existingVendor) {
-          const isLinked = existingVendor.accounts.some(
-            (acc) => acc.provider === "google"
-          )
-          if (!isLinked) {
-            await prisma.account.create({
-              data: {
-                userId: existingVendor.id,
-                type: account.type,
-                provider: account.provider,
-                providerAccountId: account.providerAccountId,
-                access_token: account.access_token as string,
-                expires_at: account.expires_at as number,
-                token_type: account.token_type as string,
-                scope: account.scope as string,
-                id_token: account.id_token as string,
-              },
-            })
-          }
-        } else {
-          await prisma.vendor.create({
-            data: {
-              email: user.email,
-              name: user.name,
-              profileComplete: false,
-              accounts: {
-                create: {
-                  type: account.type,
-                  provider: account.provider,
-                  providerAccountId: account.providerAccountId,
-                  access_token: account.access_token as string,
-                  expires_at: account.expires_at as number,
-                  token_type: account.token_type as string,
-                  scope: account.scope as string,
-                  id_token: account.id_token as string,
-                },
-              },
-            },
-          })
-        }
-      }
-      return true
-    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id

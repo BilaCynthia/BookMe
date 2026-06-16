@@ -15,17 +15,24 @@ const config: Config = {
         ring: "var(--color-primary)",
         background: "var(--color-background)",
         foreground: "var(--color-on-background)",
+        surface: {
+          DEFAULT: "var(--color-surface)",
+          foreground: "var(--color-on-surface)",
+        },
         primary: {
           DEFAULT: "var(--color-primary)",
           foreground: "var(--color-on-primary)",
+          hover: "var(--color-primary-hover)",
         },
         secondary: {
           DEFAULT: "var(--color-secondary)",
           foreground: "var(--color-on-secondary)",
+          hover: "var(--color-secondary-hover)",
         },
         destructive: {
           DEFAULT: "var(--color-error)",
           foreground: "var(--color-on-error)",
+          hover: "var(--color-error-hover)",
         },
         muted: {
           DEFAULT: "var(--color-surface-container)",

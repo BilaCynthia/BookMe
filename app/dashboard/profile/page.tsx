@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
-import { Image as ImageIcon, MapPin, Building } from "lucide-react"
+import { Image as ImageIcon, MapPin, Building, Instagram } from "lucide-react"
+import { CopyLinkInput } from "@/components/dashboard/CopyLinkInput"
+import { ProfilePhotoUpload } from "@/components/dashboard/ProfilePhotoUpload"
+import { PortfolioGallery } from "@/components/dashboard/PortfolioGallery"
 
 export const metadata = {
   title: "Profile - BookMe",
@@ -28,144 +30,93 @@ export default async function ProfilePage() {
 
   if (!vendor) redirect("/login")
 
-  // For the MVP, we render a static form. In the next phase, we'll convert this to a Client Component
-  // to handle the actual Cloudinary multipart form uploads and updates via our API routes.
-  
-  // We'll also fetch the PortfolioImages table
   const portfolioImages = await prisma.portfolioImage.findMany({
     where: { vendorId },
     orderBy: { sortOrder: 'asc' }
   })
 
   return (
-    <div className="flex-1 space-y-8 p-8 pt-6 max-w-5xl">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight text-foreground">Profile</h2>
+    <div className="flex-1 space-y-8 p-6 md:p-10 max-w-5xl mx-auto">
+      <div className="flex items-center justify-between space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <h2 className="font-heading text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">Profile</h2>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-8 duration-700">
         {/* Business Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Business Information</CardTitle>
-            <CardDescription>
+        <div className="rounded-3xl border border-border/50 bg-surface/60 p-6 sm:p-8 shadow-sm backdrop-blur-xl transition-all hover:shadow-md">
+          <div className="mb-6 space-y-1">
+            <h3 className="font-heading text-xl font-bold tracking-tight text-foreground">Business Information</h3>
+            <p className="text-sm text-subtle">
               Update your public-facing business details.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </p>
+          </div>
+          
+          <div className="space-y-5">
             <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">Business Name</label>
+              <label className="text-sm font-medium leading-none text-foreground">Business Name</label>
               <div className="relative">
-                <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input defaultValue={vendor.name || ""} className="pl-9" disabled />
+                <Building className="absolute left-4 top-3.5 h-4 w-4 text-muted-foreground" />
+                <Input defaultValue={vendor.name || ""} className="h-12 rounded-xl pl-11 bg-background border-transparent" disabled />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">Bio / Description</label>
+              <label className="text-sm font-medium leading-none text-foreground">Bio / Description</label>
               <textarea 
-                className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex min-h-[120px] w-full resize-none rounded-xl border-transparent bg-background px-4 py-3 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 defaultValue={vendor.bio || ""}
                 disabled
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">City / Location</label>
+              <label className="text-sm font-medium leading-none text-foreground">City / Location</label>
               <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input defaultValue={vendor.location || ""} className="pl-9" disabled />
+                <MapPin className="absolute left-4 top-3.5 h-4 w-4 text-muted-foreground" />
+                <Input defaultValue={vendor.location || ""} className="h-12 rounded-xl pl-11 bg-background border-transparent" disabled />
               </div>
             </div>
-            <Button disabled className="w-full">Save Changes</Button>
-            <p className="text-xs text-muted-foreground text-center">
+            <Button className="w-full h-12 rounded-xl">Save Changes</Button>
+            <p className="text-xs text-subtle text-center">
               (Interactive updates coming soon)
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Public Link & Links */}
+        {/* Public Link & Links & Photo */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Your BookMe Link</CardTitle>
-              <CardDescription>
-                Share this link on Instagram, WhatsApp, or Twitter.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-2">
-                <Input value={`bookme.ng/${vendor.slug}`} readOnly />
-                <Button variant="outline">Copy</Button>
-              </div>
-            </CardContent>
-          </Card>
+          <ProfilePhotoUpload currentPhotoUrl={vendor.profilePhoto} />
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Social Links</CardTitle>
-              <CardDescription>Connect your accounts.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div className="rounded-3xl border border-border/50 bg-surface/60 p-6 sm:p-8 shadow-sm backdrop-blur-xl transition-all hover:shadow-md">
+            <div className="mb-6 space-y-1">
+              <h3 className="font-heading text-xl font-bold tracking-tight text-foreground">Your BookMe Link</h3>
+              <p className="text-sm text-subtle">
+                Share this link on Instagram, WhatsApp, or Twitter.
+              </p>
+            </div>
+            <div>
+              <CopyLinkInput link={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/${vendor.slug}`} />
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-border/50 bg-surface/60 p-6 sm:p-8 shadow-sm backdrop-blur-xl transition-all hover:shadow-md">
+            <div className="mb-6 space-y-1">
+              <h3 className="font-heading text-xl font-bold tracking-tight text-foreground">Social Links</h3>
+              <p className="text-sm text-subtle">Connect your accounts.</p>
+            </div>
+            <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium leading-none">Instagram Handle</label>
+                <label className="text-sm font-medium leading-none text-foreground">Instagram Handle</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-muted-foreground text-sm">@</span>
-                  <Input defaultValue={vendor.instagramHandle || ""} className="pl-8" disabled />
+                  <span className="absolute left-4 top-3.5 text-muted-foreground text-sm font-medium">@</span>
+                  <Input defaultValue={vendor.instagramHandle || ""} className="h-12 rounded-xl pl-8 bg-background border-transparent" disabled />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Portfolio Gallery Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Portfolio Gallery</CardTitle>
-          <CardDescription>
-            Manage your Cloudinary-hosted portfolio images. You can upload up to 10 images.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {portfolioImages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-md border border-dashed p-8 text-center bg-muted/20">
-              <ImageIcon className="h-8 w-8 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold text-foreground">No images uploaded</h3>
-              <p className="mb-4 mt-2 text-sm text-muted-foreground max-w-sm">
-                Upload images of your best work. They will appear on your public booking page.
-              </p>
-              <Button disabled variant="outline">Upload Image</Button>
-              <p className="mt-4 text-xs text-muted-foreground">
-                (Cloudinary upload UI coming soon)
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {portfolioImages.map((img) => (
-                <div key={img.id} className="group relative aspect-square overflow-hidden rounded-md border bg-muted">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src={img.url} 
-                    alt="Portfolio item" 
-                    className="object-cover w-full h-full transition-transform group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button variant="destructive" size="sm" className="h-8" disabled>
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              
-              {portfolioImages.length < 10 && (
-                <div className="flex flex-col items-center justify-center aspect-square rounded-md border border-dashed hover:bg-muted/50 cursor-pointer transition-colors disabled:opacity-50">
-                   <ImageIcon className="h-6 w-6 text-muted-foreground mb-2" />
-                   <span className="text-xs text-muted-foreground font-medium">Add Image</span>
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <PortfolioGallery initialImages={portfolioImages.map(img => ({ id: img.id, url: img.url }))} />
     </div>
   )
 }

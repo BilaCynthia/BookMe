@@ -1,8 +1,9 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { Calendar, CreditCard, LayoutDashboard, Settings, User } from "lucide-react"
+import { LogOut } from "lucide-react"
 
-import { auth } from "@/lib/auth"
+import { auth, signOut } from "@/lib/auth"
+import { DesktopNav, MobileNav } from "@/components/dashboard/Navigation"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -18,54 +19,53 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const businessName = session.user?.name || "Vendor Dashboard"
 
   return (
-    <div className="flex min-h-screen bg-muted/20">
+    <div className="flex min-h-screen bg-background text-foreground">
       {/* Desktop Sidebar */}
-      <aside className="hidden w-64 flex-col border-r bg-card md:flex">
-        <div className="flex h-14 items-center border-b px-4">
-          <span className="font-semibold text-lg truncate">{businessName}</span>
+      <aside className="hidden w-64 flex-col border-r border-border/50 bg-surface/40 backdrop-blur-xl md:flex z-10">
+        <div className="flex h-20 items-center px-6">
+          <Link href="/dashboard" className="group flex items-center space-x-3 text-primary">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm transition-transform group-hover:scale-105">
+              <span className="text-sm font-bold">B</span>
+            </div>
+            <span className="truncate font-heading text-xl font-bold tracking-tight">{businessName}</span>
+          </Link>
         </div>
-        <nav className="flex-1 space-y-1 p-4">
-          <Link href="/dashboard" className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted text-muted-foreground hover:text-foreground">
-            <LayoutDashboard className="h-4 w-4" /> Overview
-          </Link>
-          <Link href="/dashboard/bookings" className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted text-muted-foreground hover:text-foreground">
-            <CreditCard className="h-4 w-4" /> Bookings
-          </Link>
-          <Link href="/dashboard/calendar" className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted text-muted-foreground hover:text-foreground">
-            <Calendar className="h-4 w-4" /> Calendar
-          </Link>
-          <Link href="/dashboard/profile" className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted text-muted-foreground hover:text-foreground">
-            <User className="h-4 w-4" /> Profile
-          </Link>
-          <Link href="/dashboard/settings" className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted text-muted-foreground hover:text-foreground">
-            <Settings className="h-4 w-4" /> Settings
-          </Link>
-        </nav>
+        <div className="px-4 pb-4">
+          <DesktopNav />
+        </div>
+        <div className="p-4 mt-auto">
+          <form action={async () => {
+            "use server"
+            await signOut({ redirectTo: "/login" })
+          }}>
+            <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10">
+              <LogOut className="h-4 w-4" /> Logout
+            </button>
+          </form>
+        </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 pb-16 md:pb-0">
+      <main className="flex-1 overflow-y-auto pb-16 md:pb-0 relative">
+        {/* Subtle Background Glow for main content area */}
+        <div className="absolute top-0 right-0 -z-10 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -z-10 h-[500px] w-[500px] rounded-full bg-secondary/5 blur-[120px] pointer-events-none" />
+        
         {children}
       </main>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="fixed bottom-0 z-50 flex h-16 w-full items-center justify-around border-t bg-card md:hidden">
-        <Link href="/dashboard" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground">
-          <LayoutDashboard className="h-5 w-5" />
-          <span className="text-[10px] font-medium">Overview</span>
-        </Link>
-        <Link href="/dashboard/bookings" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground">
-          <CreditCard className="h-5 w-5" />
-          <span className="text-[10px] font-medium">Bookings</span>
-        </Link>
-        <Link href="/dashboard/calendar" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground">
-          <Calendar className="h-5 w-5" />
-          <span className="text-[10px] font-medium">Calendar</span>
-        </Link>
-        <Link href="/dashboard/profile" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground">
-          <User className="h-5 w-5" />
-          <span className="text-[10px] font-medium">Profile</span>
-        </Link>
+      <nav className="fixed bottom-0 z-50 flex h-20 w-full items-center justify-around border-t border-border/50 bg-surface/80 backdrop-blur-xl md:hidden">
+        <MobileNav />
+        <form action={async () => {
+          "use server"
+          await signOut({ redirectTo: "/login" })
+        }}>
+          <button type="submit" className="flex flex-col items-center gap-1 p-2 text-destructive transition-colors">
+            <LogOut className="h-5 w-5" />
+            <span className="text-[10px] font-medium">Logout</span>
+          </button>
+        </form>
       </nav>
     </div>
   )

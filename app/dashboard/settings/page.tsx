@@ -77,7 +77,7 @@ export default async function SettingsPage() {
                 <label className="text-sm font-medium leading-none">Confirm New Password</label>
                 <Input type="password" placeholder="••••••••" disabled />
               </div>
-              <Button disabled variant="outline">Update Password</Button>
+              <Button>Update Password</Button>
             </div>
           )}
         </CardContent>
@@ -98,7 +98,7 @@ export default async function SettingsPage() {
                 Permanently remove your account and all associated data.
               </p>
             </div>
-            <Button variant="destructive" disabled>Delete Account</Button>
+            <Button variant="destructive" className="bg-destructive-foreground text-destructive hover:bg-destructive-foreground/90">Delete Account</Button>
           </div>
         </CardContent>
       </Card>

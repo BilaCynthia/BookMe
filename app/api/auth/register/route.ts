@@ -4,10 +4,25 @@ import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/db"
 import { logger } from "@/lib/logger"
 
+function slugify(text: string) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-")
+}
+
 const registerSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
-  password: z.string().min(8, "Password must be at least 8 characters long."),
-  businessName: z.string().min(2, "Business name must be at least 2 characters.").optional(),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters long.")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter.")
+    .regex(/[0-9]/, "Password must contain at least one number.")
+    .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character."),
+  name: z.string().min(2, "Name must be at least 2 characters."),
 })
 
 export async function POST(request: NextRequest) {
@@ -26,7 +41,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { email, password, businessName } = parsed.data
+    const { email, password, name } = parsed.data
 
     const existingVendor = await prisma.vendor.findUnique({
       where: { email },
@@ -38,14 +53,28 @@ export async function POST(request: NextRequest) {
         { status: 409 }
       )
     }
-
     const passwordHash = await bcrypt.hash(password, 12)
+
+    // Generate unique slug
+    const baseSlug = slugify(name) || "vendor"
+    let slug = baseSlug
+    let counter = 1
+
+    while (true) {
+      const existingSlug = await prisma.vendor.findUnique({
+        where: { slug },
+      })
+      if (!existingSlug) break
+      slug = `${baseSlug}-${counter}`
+      counter++
+    }
 
     const vendor = await prisma.vendor.create({
       data: {
         email,
         passwordHash,
-        name: businessName || null,
+        name,
+        slug,
         profileComplete: false,
       },
     })
