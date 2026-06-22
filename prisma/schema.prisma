@@ -96,6 +96,7 @@ model Vendor {
   whatsappNumber  String?
   isActive        Boolean         @default(true)
   profileComplete Boolean         @default(false)
+  dailyCapacity   Int             @default(1)
   passwordHash    String?
   emailVerified   DateTime?
   timezone        String          @default("Africa/Lagos")

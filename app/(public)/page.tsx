@@ -1,5 +1,4 @@
 import { Hero } from "@/components/landing/Hero"
-import { FadeIn } from "@/components/ui/FadeIn"
 import { ProblemSection } from "@/components/landing/ProblemSection"
 import { HowItWorks } from "@/components/landing/HowItWorks"
 import { Features } from "@/components/landing/Features"
@@ -14,33 +13,15 @@ export default function LandingPage() {
   return (
     <>
       <Hero />
-      <FadeIn>
-        <ProblemSection />
-      </FadeIn>
-      <FadeIn>
-        <HowItWorks />
-      </FadeIn>
-      <FadeIn>
-        <Features />
-      </FadeIn>
-      <FadeIn>
-        <VendorCategories />
-      </FadeIn>
-      <FadeIn>
-        <ForClients />
-      </FadeIn>
-      <FadeIn>
-        <Testimonials />
-      </FadeIn>
-      <FadeIn>
-        <Pricing />
-      </FadeIn>
-      <FadeIn>
-        <FAQ />
-      </FadeIn>
-      <FadeIn>
-        <FinalCTA />
-      </FadeIn>
+      <ProblemSection />
+      <HowItWorks />
+      <Features />
+      <VendorCategories />
+      <ForClients />
+      <Testimonials />
+      <Pricing />
+      <FAQ />
+      <FinalCTA />
     </>
   )
 }

@@ -19,7 +19,7 @@ export default function LoginPage() {
     setError("")
 
     const formData = new FormData(event.currentTarget)
-    const email = formData.get("email") as string
+    const email = (formData.get("email") as string).trim()
     const password = formData.get("password") as string
 
     if (!email || !password) {
@@ -36,7 +36,11 @@ export default function LoginPage() {
       })
 
       if (res?.error) {
-        setError("Invalid email or password.")
+        if (res.error === "CredentialsSignin") {
+          setError("Invalid email or password.")
+        } else {
+          setError(`Login failed: ${res.error}`)
+        }
       } else {
         router.push("/dashboard")
         router.refresh()
