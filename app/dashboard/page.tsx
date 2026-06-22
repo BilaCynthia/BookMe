@@ -32,12 +32,20 @@ export default async function DashboardPage() {
   const totalBookings = bookings.length
   
   const totalRevenueKobo = bookings.reduce(
-    (acc, booking) => acc + booking.basePrice,
+    (acc, booking) => {
+      const depositNet = Math.floor(booking.depositAmount * 0.95)
+      const balance = booking.basePrice - booking.depositAmount
+      return acc + depositNet + balance
+    },
     0
   )
   
-  const totalDepositsKobo = bookings.reduce(
-    (acc, booking) => acc + booking.depositAmount,
+  const totalCollectedKobo = bookings.reduce(
+    (acc, booking) => {
+      const depositNet = Math.floor(booking.depositAmount * 0.95)
+      const balance = booking.balancePaid ? (booking.basePrice - booking.depositAmount) : 0
+      return acc + depositNet + balance
+    },
     0
   )
 
@@ -51,69 +59,69 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex-1 space-y-8 p-6 md:p-10 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex items-center justify-between space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-200">
         <h2 className="font-heading text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">Dashboard</h2>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <div className="group relative overflow-hidden rounded-3xl border border-border/50 bg-surface/60 p-6 shadow-sm backdrop-blur-xl transition-all hover:border-primary/30 hover:shadow-md">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-8 duration-200">
+        <div className="group relative flex flex-col justify-between h-full overflow-hidden rounded-3xl border border-border/50 bg-surface/60 p-6 shadow-sm backdrop-blur-xl transition-all hover:border-primary/30 hover:shadow-md">
           <div className="flex flex-row items-center justify-between pb-4">
             <h3 className="text-sm font-medium text-subtle">Total Revenue</h3>
             <div className="rounded-xl bg-primary/10 p-2 text-primary transition-transform group-hover:scale-110">
               <DollarSign className="h-5 w-5" />
             </div>
           </div>
-          <div className="space-y-1">
-            <div className="font-heading text-3xl font-bold tracking-tight text-foreground">{formatNgn(totalRevenueKobo)}</div>
-            <p className="text-xs text-subtle">Base price of confirmed events</p>
+          <div className="space-y-1 mt-auto">
+            <div className="font-heading text-3xl font-bold tracking-tight text-foreground truncate">{formatNgn(totalRevenueKobo)}</div>
+            <p className="text-xs text-subtle line-clamp-1">Expected earnings (Net of fee)</p>
           </div>
           <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
         </div>
 
-        <div className="group relative overflow-hidden rounded-3xl border border-border/50 bg-surface/60 p-6 shadow-sm backdrop-blur-xl transition-all hover:border-secondary/30 hover:shadow-md">
+        <div className="group relative flex flex-col justify-between h-full overflow-hidden rounded-3xl border border-border/50 bg-surface/60 p-6 shadow-sm backdrop-blur-xl transition-all hover:border-primary/30 hover:shadow-md">
           <div className="flex flex-row items-center justify-between pb-4">
-            <h3 className="text-sm font-medium text-subtle">Deposits Secured</h3>
-            <div className="rounded-xl bg-secondary/20 p-2 text-secondary-foreground transition-transform group-hover:scale-110">
+            <h3 className="text-sm font-medium text-subtle">Amount Collected</h3>
+            <div className="rounded-xl bg-primary/10 p-2 text-primary transition-transform group-hover:scale-110">
               <CreditCard className="h-5 w-5" />
             </div>
           </div>
-          <div className="space-y-1">
-            <div className="font-heading text-3xl font-bold tracking-tight text-foreground">{formatNgn(totalDepositsKobo)}</div>
-            <p className="text-xs text-subtle">Upfront payments collected</p>
+          <div className="space-y-1 mt-auto">
+            <div className="font-heading text-3xl font-bold tracking-tight text-foreground truncate">{formatNgn(totalCollectedKobo)}</div>
+            <p className="text-xs text-subtle line-clamp-1">Deposits & paid balances</p>
           </div>
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-secondary/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
         </div>
 
-        <div className="group relative overflow-hidden rounded-3xl border border-border/50 bg-surface/60 p-6 shadow-sm backdrop-blur-xl transition-all hover:border-tertiary/30 hover:shadow-md">
+        <div className="group relative flex flex-col justify-between h-full overflow-hidden rounded-3xl border border-border/50 bg-surface/60 p-6 shadow-sm backdrop-blur-xl transition-all hover:border-primary/30 hover:shadow-md">
           <div className="flex flex-row items-center justify-between pb-4">
             <h3 className="text-sm font-medium text-subtle">Upcoming Events</h3>
-            <div className="rounded-xl bg-tertiary/20 p-2 text-tertiary-foreground transition-transform group-hover:scale-110">
+            <div className="rounded-xl bg-primary/10 p-2 text-primary transition-transform group-hover:scale-110">
               <CalendarDays className="h-5 w-5" />
             </div>
           </div>
-          <div className="space-y-1">
-            <div className="font-heading text-3xl font-bold tracking-tight text-foreground">+{upcomingBookings.length}</div>
-            <p className="text-xs text-subtle">Scheduled for the future</p>
+          <div className="space-y-1 mt-auto">
+            <div className="font-heading text-3xl font-bold tracking-tight text-foreground truncate">+{upcomingBookings.length}</div>
+            <p className="text-xs text-subtle line-clamp-1">Scheduled for the future</p>
           </div>
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-tertiary/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
         </div>
 
-        <div className="group relative overflow-hidden rounded-3xl border border-border/50 bg-surface/60 p-6 shadow-sm backdrop-blur-xl transition-all hover:border-muted-foreground/30 hover:shadow-md">
+        <div className="group relative flex flex-col justify-between h-full overflow-hidden rounded-3xl border border-border/50 bg-surface/60 p-6 shadow-sm backdrop-blur-xl transition-all hover:border-primary/30 hover:shadow-md">
           <div className="flex flex-row items-center justify-between pb-4">
             <h3 className="text-sm font-medium text-subtle">Total Clients</h3>
-            <div className="rounded-xl bg-muted p-2 text-foreground transition-transform group-hover:scale-110">
+            <div className="rounded-xl bg-primary/10 p-2 text-primary transition-transform group-hover:scale-110">
               <Users className="h-5 w-5" />
             </div>
           </div>
-          <div className="space-y-1">
-            <div className="font-heading text-3xl font-bold tracking-tight text-foreground">+{totalBookings}</div>
-            <p className="text-xs text-subtle">Across all historical bookings</p>
+          <div className="space-y-1 mt-auto">
+            <div className="font-heading text-3xl font-bold tracking-tight text-foreground truncate">+{totalBookings}</div>
+            <p className="text-xs text-subtle line-clamp-1">Historical total</p>
           </div>
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-muted-foreground/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-7 animate-in fade-in slide-in-from-bottom-12 duration-700">
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-7 animate-in fade-in slide-in-from-bottom-12 duration-200">
         <div className="lg:col-span-4 rounded-3xl border border-border/50 bg-surface/60 p-6 sm:p-8 shadow-sm backdrop-blur-xl">
           <div className="mb-6 space-y-1">
             <h3 className="font-heading text-xl font-bold tracking-tight text-foreground">Recent Upcoming Events</h3>

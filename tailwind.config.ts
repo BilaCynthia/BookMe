@@ -10,41 +10,41 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        border: "var(--color-outline-variant)",
-        input: "var(--color-outline-variant)",
-        ring: "var(--color-primary)",
-        background: "var(--color-background)",
-        foreground: "var(--color-on-background)",
+        border: "hsl(var(--color-outline-variant) / <alpha-value>)",
+        input: "hsl(var(--color-outline-variant) / <alpha-value>)",
+        ring: "hsl(var(--color-primary) / <alpha-value>)",
+        background: "hsl(var(--color-background) / <alpha-value>)",
+        foreground: "hsl(var(--color-on-background) / <alpha-value>)",
         surface: {
-          DEFAULT: "var(--color-surface)",
-          foreground: "var(--color-on-surface)",
+          DEFAULT: "hsl(var(--color-surface) / <alpha-value>)",
+          foreground: "hsl(var(--color-on-surface) / <alpha-value>)",
         },
         primary: {
-          DEFAULT: "var(--color-primary)",
-          foreground: "var(--color-on-primary)",
-          hover: "var(--color-primary-hover)",
+          DEFAULT: "hsl(var(--color-primary) / <alpha-value>)",
+          foreground: "hsl(var(--color-on-primary) / <alpha-value>)",
+          hover: "hsl(var(--color-primary-hover) / <alpha-value>)",
         },
         secondary: {
-          DEFAULT: "var(--color-secondary)",
-          foreground: "var(--color-on-secondary)",
-          hover: "var(--color-secondary-hover)",
+          DEFAULT: "hsl(var(--color-secondary) / <alpha-value>)",
+          foreground: "hsl(var(--color-on-secondary) / <alpha-value>)",
+          hover: "hsl(var(--color-secondary-hover) / <alpha-value>)",
         },
         destructive: {
-          DEFAULT: "var(--color-error)",
-          foreground: "var(--color-on-error)",
-          hover: "var(--color-error-hover)",
+          DEFAULT: "hsl(var(--color-error) / <alpha-value>)",
+          foreground: "hsl(var(--color-on-error) / <alpha-value>)",
+          hover: "hsl(var(--color-error-hover) / <alpha-value>)",
         },
         muted: {
-          DEFAULT: "var(--color-surface-container)",
-          foreground: "var(--color-outline)",
+          DEFAULT: "hsl(var(--color-surface-variant) / <alpha-value>)",
+          foreground: "hsl(var(--color-outline) / <alpha-value>)",
         },
         accent: {
-          DEFAULT: "var(--color-tertiary)",
-          foreground: "var(--color-on-tertiary)",
+          DEFAULT: "hsl(var(--color-tertiary) / <alpha-value>)",
+          foreground: "hsl(var(--color-on-tertiary) / <alpha-value>)",
         },
         card: {
-          DEFAULT: "var(--color-surface)",
-          foreground: "var(--color-on-surface)",
+          DEFAULT: "hsl(var(--color-surface) / <alpha-value>)",
+          foreground: "hsl(var(--color-on-surface) / <alpha-value>)",
         },
       },
       borderRadius: {

@@ -8,8 +8,8 @@ export default async function VendorProfileLayout({
   children: React.ReactNode
   params: { slug: string }
 }) {
-  const vendor = await prisma.vendor.findUnique({
-    where: { slug: params.slug },
+  const vendor = await prisma.vendor.findFirst({
+    where: { slug: { equals: params.slug, mode: "insensitive" } },
     select: {
       id: true,
       isActive: true,

@@ -27,6 +27,7 @@ export function FinalCTA() {
           
           <Link
             href="/signup"
+            prefetch={true}
             className="group inline-flex items-center justify-center gap-2 rounded-full bg-primary border-2 border-primary-tint/20 px-8 py-4 font-bold text-primary-foreground shadow-lg transition-all hover:scale-105 hover:bg-primary-hover hover:shadow-xl text-sm md:text-base"
           >
             Create your free profile

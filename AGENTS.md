@@ -213,7 +213,7 @@ All colours are defined as HSL values in `tailwind.config.ts` and must be refere
 ### Payment & Booking Logic
 - The booking confirmation flow is: **payment webhook → verify signature → verify amount → update booking to CONFIRMED → block date → send emails** — in that order, in a single transaction where possible.
 - Webhook handlers must be **idempotent** — processing the same webhook twice must not create a double-booking or double-email.
-- Pending bookings expire after **60 minutes**. The date lock (`PENDING_LOCK`) expires after **15 minutes**.
+- Pending bookings and their associated date lock (`PENDING_LOCK`) both expire after exactly **60 minutes**.
 - Always re-check date availability at payment initiation — never trust the state from when the page was loaded.
 
 ---

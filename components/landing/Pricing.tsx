@@ -12,7 +12,7 @@ export function Pricing() {
           Free to start. We only earn when you do.
         </h2>
         <p className="mb-8 max-w-2xl text-base text-subtle">
-          BookMe takes a small commission on each confirmed deposit. No monthly fees. No upfront cost. If you're not booking, you're not paying.
+          BookMe takes a small commission on each confirmed deposit. No monthly fees. No upfront cost. If you&apos;re not booking, you&apos;re not paying.
         </p>
 
         <div className="mb-8 flex flex-col items-start gap-3 text-left sm:flex-row sm:items-center sm:gap-6">

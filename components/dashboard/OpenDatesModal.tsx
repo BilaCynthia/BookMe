@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { format, addDays, startOfToday, isBefore, isSameDay } from "date-fns"
+import { format, addDays, startOfToday, isBefore, isSameDay, addMonths } from "date-fns"
 import { Button } from "@/components/ui/Button"
 import { ChevronLeft, ChevronRight, Plus, X, Loader2 } from "lucide-react"
 
@@ -28,12 +28,10 @@ export function OpenDatesModal({ isOpen, onClose, onSuccess, existingDates }: Op
     const lastDay = new Date(year, month + 1, 0)
     const days: (Date | null)[] = []
 
-    // Add empty cells for days before the first day of month
     for (let i = 0; i < firstDay.getDay(); i++) {
       days.push(null)
     }
 
-    // Add all days in the month
     for (let d = 1; d <= lastDay.getDate(); d++) {
       days.push(new Date(year, month, d))
     }
@@ -58,6 +56,34 @@ export function OpenDatesModal({ isOpen, onClose, onSuccess, existingDates }: Op
         ? prev.filter((d) => !isSameDay(d, date))
         : [...prev, date]
     )
+  }
+
+  const selectAllInMonth = () => {
+    const newSelection = [...selectedDates]
+    days.forEach((day) => {
+      if (day && !isBefore(day, today) && !isDateAlreadyOpen(day)) {
+        newSelection.push(day)
+      }
+    })
+    
+    const uniqueDates = Array.from(new Set(newSelection.map(d => d.toISOString()))).map(s => new Date(s))
+    setSelectedDates(uniqueDates)
+  }
+
+  const selectNextMonths = (monthsCount: number) => {
+    const newSelection = [...selectedDates]
+    const endDate = addMonths(today, monthsCount)
+    let current = new Date(today)
+
+    while (isBefore(current, endDate) || isSameDay(current, endDate)) {
+      if (!isDateAlreadyOpen(current)) {
+        newSelection.push(current)
+      }
+      current = addDays(current, 1)
+    }
+    
+    const uniqueDates = Array.from(new Set(newSelection.map(d => d.toISOString()))).map(s => new Date(s))
+    setSelectedDates(uniqueDates)
   }
 
   const handleSubmit = async () => {
@@ -104,9 +130,9 @@ export function OpenDatesModal({ isOpen, onClose, onSuccess, existingDates }: Op
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-xl border bg-card shadow-xl">
+      <div className="w-full max-w-md rounded-xl border bg-card shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between border-b p-4">
+        <div className="flex items-center justify-between border-b p-4 shrink-0 bg-surface">
           <h3 className="text-lg font-semibold text-foreground">Open New Dates</h3>
           <button
             type="button"
@@ -117,8 +143,25 @@ export function OpenDatesModal({ isOpen, onClose, onSuccess, existingDates }: Op
           </button>
         </div>
 
+        {/* Quick Actions */}
+        <div className="bg-muted/20 border-b p-3 px-4 flex flex-wrap gap-2 items-center shrink-0">
+          <span className="text-xs font-bold uppercase tracking-wider text-subtle mr-1">Bulk Select:</span>
+          <Button variant="outline" size="sm" onClick={selectAllInMonth} className="h-7 text-xs rounded-full border-border/60">
+            Visible Month
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => selectNextMonths(3)} className="h-7 text-xs rounded-full border-border/60">
+            Next 3 Months
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => selectNextMonths(12)} className="h-7 text-xs rounded-full border-border/60">
+            Next 1 Year
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setSelectedDates([])} className="h-7 text-xs rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive ml-auto">
+            Clear
+          </Button>
+        </div>
+
         {/* Calendar */}
-        <div className="p-4">
+        <div className="p-4 overflow-y-auto">
           {/* Month navigation */}
           <div className="mb-4 flex items-center justify-between">
             <button

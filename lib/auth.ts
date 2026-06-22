@@ -31,8 +31,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
+        const email = (credentials.email as string).toLowerCase()
         const vendor = await prisma.vendor.findUnique({
-          where: { email: credentials.email as string },
+          where: { email },
         })
 
         if (!vendor || !vendor.passwordHash) {
@@ -58,14 +59,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      // The 'user' object is ONLY passed in the very first time the JWT is created (on sign-in).
+      // We query the database here to populate the token.
       if (user) {
         token.id = user.id
-      }
-      
-      if (token.id) {
+        
+        // Fetch additional vendor details to store in the stateless JWT
         const vendor = await prisma.vendor.findUnique({
-          where: { id: token.id as string },
+          where: { id: user.id as string },
           select: { profileComplete: true, name: true },
         })
         if (vendor) {
@@ -73,6 +75,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.businessName = vendor.name
         }
       }
+
+      // If we manually call update() on the session, update the token
+      if (trigger === "update" && session) {
+        if (session.profileCompleted !== undefined) {
+          token.profileCompleted = session.profileCompleted
+        }
+        if (session.businessName !== undefined) {
+          token.businessName = session.businessName
+        }
+      }
+
       return token
     },
     async session({ session, token }) {

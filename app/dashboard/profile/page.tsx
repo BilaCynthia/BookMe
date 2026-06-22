@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
-import { Image as ImageIcon, MapPin, Building, Instagram } from "lucide-react"
+import { Image as ImageIcon, MapPin, Building } from "lucide-react"
 import { CopyLinkInput } from "@/components/dashboard/CopyLinkInput"
 import { ProfilePhotoUpload } from "@/components/dashboard/ProfilePhotoUpload"
 import { PortfolioGallery } from "@/components/dashboard/PortfolioGallery"
@@ -37,11 +37,11 @@ export default async function ProfilePage() {
 
   return (
     <div className="flex-1 space-y-8 p-6 md:p-10 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex items-center justify-between space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-200">
         <h2 className="font-heading text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">Profile</h2>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-8 duration-700">
+      <div className="grid gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-8 duration-200">
         {/* Business Information */}
         <div className="rounded-3xl border border-border/50 bg-surface/60 p-6 sm:p-8 shadow-sm backdrop-blur-xl transition-all hover:shadow-md">
           <div className="mb-6 space-y-1">

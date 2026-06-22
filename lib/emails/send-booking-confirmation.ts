@@ -29,7 +29,7 @@ export async function sendBookingConfirmation(data: BookingConfirmationData) {
   // 1. Send Email to Client
   try {
     await resend.emails.send({
-      from: "BookMe <hello@bookme.com>", // You should use your verified domain here
+      from: "BookMe <hello@mietimi.online>",
       to: data.clientEmail,
       subject: `Booking Confirmed: ${data.serviceName} with ${data.vendorName}`,
       html: `
@@ -55,7 +55,7 @@ export async function sendBookingConfirmation(data: BookingConfirmationData) {
   // 2. Send Email to Vendor
   try {
     await resend.emails.send({
-      from: "BookMe <hello@bookme.com>",
+      from: "BookMe <hello@mietimi.online>",
       to: data.vendorEmail,
       subject: `New Booking: ${data.serviceName} on ${dateString}`,
       html: `

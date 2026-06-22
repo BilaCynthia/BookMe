@@ -12,18 +12,26 @@ export default async function VendorProfilePage({
 }: {
   params: { slug: string }
 }) {
-  const vendor = await prisma.vendor.findUnique({
-    where: { slug: params.slug, isActive: true },
-    include: {
-      services: {
-        where: { isActive: true },
-        orderBy: { basePrice: "asc" }
+  let vendor;
+  try {
+    vendor = await prisma.vendor.findFirst({
+      where: { 
+        slug: { equals: params.slug, mode: "insensitive" }, 
+        isActive: true 
       },
-      portfolioImages: {
-        orderBy: { sortOrder: "asc" }
-      }
-    },
-  })
+      include: {
+        services: {
+          where: { isActive: true },
+          orderBy: { createdAt: "asc" }
+        },
+        portfolioImages: {
+          orderBy: { sortOrder: "asc" }
+        }
+      },
+    })
+  } catch (error: any) {
+    return <div className="p-10 text-red-500 font-mono">DATABASE CRASH: {error.message || String(error)}</div>
+  }
 
   if (!vendor) {
     notFound()
@@ -107,31 +115,54 @@ export default async function VendorProfilePage({
             vendor.services.map((service) => (
               <div key={service.id} className="group flex flex-col justify-between items-center text-center rounded-2xl border border-border/60 bg-background p-6 shadow-sm hover:border-primary/50 hover:shadow-md transition-all w-full max-w-md">
                 <div className="space-y-3 mb-6 flex flex-col items-center w-full">
-                  <h3 className="text-lg font-bold text-center">{service.name}</h3>
-                  <span className="font-semibold text-foreground bg-primary/5 px-3 py-1 rounded-lg w-fit text-sm">
-                    ₦{(service.basePrice / 100).toLocaleString()}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-center">{service.name}</h3>
+                    {service.serviceType === "QUOTE_REQUIRED" && (
+                      <span className="text-xs font-semibold bg-secondary/10 text-secondary-foreground px-2 py-0.5 rounded-full shrink-0">
+                        Quote Required
+                      </span>
+                    )}
+                  </div>
+                  {service.serviceType === "FIXED_PRICE" ? (
+                    <span className="font-semibold text-foreground bg-primary/5 px-3 py-1 rounded-lg w-fit text-sm">
+                      ₦{(service.basePrice / 100).toLocaleString()}
+                    </span>
+                  ) : (
+                    <span className="font-semibold text-secondary bg-secondary/10 px-3 py-1 rounded-lg w-fit text-sm">
+                      Price varies — request a quote
+                    </span>
+                  )}
                   <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 text-center">
                     {service.description}
                   </p>
                 </div>
                 
                 <div className="space-y-4 border-t pt-4 w-full flex flex-col items-center">
-                  <div className="flex flex-col items-center text-sm gap-1">
-                    <span className="text-muted-foreground text-xs">Deposit Required</span>
-                    <span className="font-medium text-secondary text-base">{service.depositPercentage}%</span>
-                  </div>
-                  <Button asChild className="w-full group-hover:bg-primary-hover transition-colors">
-                    <Link href={`/${vendor.slug}/book?service=${service.id}`}>
-                      Check Availability
-                    </Link>
-                  </Button>
+                  {service.serviceType === "FIXED_PRICE" ? (
+                    <>
+                      <div className="flex flex-col items-center text-sm gap-1">
+                        <span className="text-muted-foreground text-xs">Deposit Required</span>
+                        <span className="font-medium text-secondary text-base">{service.depositPercentage}%</span>
+                      </div>
+                      <Button asChild className="w-full group-hover:bg-primary-hover transition-colors">
+                        <Link href={`/${vendor.slug}/book?service=${service.id}`}>
+                          Check Availability
+                        </Link>
+                      </Button>
+                    </>
+                  ) : (
+                    <Button asChild variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors">
+                      <Link href={`/${vendor.slug}/quote?service=${service.id}`}>
+                        Request a Quote
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </div>
             ))
           ) : (
             <div className="col-span-full text-center py-12 rounded-2xl border border-dashed bg-muted/10">
-              <p className="text-muted-foreground">This vendor hasn't added any services yet.</p>
+              <p className="text-muted-foreground">This vendor hasn&apos;t added any services yet.</p>
             </div>
           )}
         </div>

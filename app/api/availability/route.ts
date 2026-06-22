@@ -22,9 +22,10 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (dates.length > 90) {
+    // Allow up to 400 dates to support the 'Next 1 Year' bulk action (365 days)
+    if (dates.length > 400) {
       return NextResponse.json(
-        { error: "You can open a maximum of 90 dates at a time" },
+        { error: "You can open a maximum of 400 dates at a time" },
         { status: 400 }
       )
     }

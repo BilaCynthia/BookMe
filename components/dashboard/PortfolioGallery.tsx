@@ -76,7 +76,7 @@ export function PortfolioGallery({ initialImages }: PortfolioGalleryProps) {
   }
 
   return (
-    <div className="rounded-3xl border border-border/50 bg-surface/60 p-6 sm:p-8 shadow-sm backdrop-blur-xl transition-all hover:shadow-md animate-in fade-in slide-in-from-bottom-12 duration-700">
+    <div className="rounded-3xl border border-border/50 bg-surface/60 p-6 sm:p-8 shadow-sm backdrop-blur-xl transition-all hover:shadow-md animate-in fade-in slide-in-from-bottom-12 duration-200">
       <div className="mb-6 space-y-1">
         <h3 className="font-heading text-xl font-bold tracking-tight text-foreground">Portfolio Gallery</h3>
         <p className="text-sm text-subtle">

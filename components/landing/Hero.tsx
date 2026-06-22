@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/Button"
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pt-24 pb-32 md:pt-32 md:pb-40 bg-background">
+    <section className="relative overflow-hidden pt-24 pb-32 md:pt-32 md:pb-40 bg-background px-4 md:px-6">
       {/* Background Elements */}
       <div className="absolute top-0 left-1/2 -z-10 -translate-x-1/2 w-full max-w-7xl h-full">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/20 blur-[100px] opacity-70 animate-pulse" />
         <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] rounded-full bg-secondary/30 blur-[100px] opacity-70" />
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 md:px-6">
+      <div className="mx-auto max-w-6xl">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           
           {/* Hero Text */}
@@ -28,16 +28,16 @@ export function Hero() {
               BookMe replaces endless DMs with one shareable link. Clients pick a date, pay a deposit, and instantly lock it in.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link href="/signup" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full text-base h-14 px-8 shadow-xl shadow-primary/20 gap-2">
+              <Button asChild size="lg" className="w-full sm:w-auto text-base h-14 px-8 shadow-xl shadow-primary/20 gap-2">
+                <Link href="/signup" prefetch={true}>
                   Get Your Link Free <ArrowRight className="h-5 w-5" />
-                </Button>
-              </Link>
-              <Link href="#how-it-works" className="w-full sm:w-auto">
-                <Button variant="outline" size="lg" className="w-full text-base h-14 px-8 bg-surface/50 backdrop-blur-sm">
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto text-base h-14 px-8 bg-surface/50 backdrop-blur-sm">
+                <Link href="#how-it-works">
                   See How It Works
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
             
             <div className="flex items-center gap-4 pt-6 text-sm font-medium text-subtle">

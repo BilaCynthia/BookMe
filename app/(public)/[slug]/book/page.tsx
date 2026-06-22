@@ -17,14 +17,21 @@ export default async function BookingPage({
     redirect(`/${params.slug}`)
   }
 
-  const [vendor, service] = await Promise.all([
-    prisma.vendor.findUnique({
-      where: { slug: params.slug, isActive: true },
-    }),
-    prisma.service.findUnique({
-      where: { id: searchParams.service, isActive: true },
-    }),
-  ])
+  let vendor, service;
+  try {
+    const results = await Promise.all([
+      prisma.vendor.findFirst({
+        where: { slug: { equals: params.slug, mode: "insensitive" }, isActive: true },
+      }),
+      prisma.service.findUnique({
+        where: { id: searchParams.service, isActive: true },
+      }),
+    ])
+    vendor = results[0]
+    service = results[1]
+  } catch (error: any) {
+    return <div className="p-10 text-red-500">DATABASE ERROR: {error.message}</div>
+  }
 
   if (!vendor || !service || service.vendorId !== vendor.id) {
     notFound()

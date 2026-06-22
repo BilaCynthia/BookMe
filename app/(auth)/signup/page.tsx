@@ -84,11 +84,11 @@ export default function SignupPage() {
 
   return (
     <div className="w-full space-y-8">
-      <div className="space-y-2 text-center md:text-left">
+      <div className="space-y-2 text-center">
         <h1 className="font-heading text-3xl font-extrabold tracking-tight text-foreground">
           Create an account
         </h1>
-        <p className="text-base text-subtle">
+        <p className="text-sm text-subtle font-medium">
           Enter your details below to create your account
         </p>
       </div>
@@ -99,10 +99,10 @@ export default function SignupPage() {
             id="name"
             name="name"
             type="text"
-            label="Name"
+            label="Full Name"
             placeholder="John Doe or Emeka Photography"
             disabled={isLoading}
-            className="h-12 rounded-xl bg-surface border-border/60 focus:border-primary transition-colors"
+            className="h-12 rounded-2xl bg-background/50 border-border/40 focus:border-primary focus:bg-background transition-all"
             required
           />
           <Input
@@ -113,7 +113,7 @@ export default function SignupPage() {
             placeholder="m@example.com"
             autoComplete="email"
             disabled={isLoading}
-            className="h-12 rounded-xl bg-surface border-border/60 focus:border-primary transition-colors"
+            className="h-12 rounded-2xl bg-background/50 border-border/40 focus:border-primary focus:bg-background transition-all"
             required
           />
           <Input
@@ -124,7 +124,7 @@ export default function SignupPage() {
             placeholder="Minimum 8 characters"
             autoComplete="new-password"
             disabled={isLoading}
-            className="h-12 rounded-xl bg-surface border-border/60 focus:border-primary transition-colors"
+            className="h-12 rounded-2xl bg-background/50 border-border/40 focus:border-primary focus:bg-background transition-all"
             required
           />
         </div>
@@ -139,15 +139,15 @@ export default function SignupPage() {
           type="submit" 
           fullWidth 
           isLoading={isLoading} 
-          className="h-12 rounded-xl text-base font-semibold shadow-md transition-all hover:shadow-lg mt-2"
+          className="h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 mt-2"
         >
           Sign Up
         </Button>
       </form>
 
-      <div className="text-center text-sm text-subtle">
+      <div className="text-center text-sm font-medium text-subtle">
         Already have an account?{" "}
-        <Link href="/login" className="font-bold text-primary hover:underline underline-offset-4 transition-all">
+        <Link href="/login" className="font-bold text-primary hover:text-primary-hover transition-colors">
           Sign in
         </Link>
       </div>

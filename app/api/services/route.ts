@@ -15,16 +15,21 @@ const createServiceSchema = z.object({
     .string()
     .min(2, "Description must be at least 2 characters")
     .max(200, "Description must be 200 characters or less"),
+  serviceType: z.enum(["FIXED_PRICE", "QUOTE_REQUIRED"]).default("FIXED_PRICE"),
   basePrice: z
     .number()
     .min(1000, "Minimum price is ₦1,000")
-    .max(100_000_000, "Maximum price is ₦100,000,000"),
+    .max(100_000_000, "Maximum price is ₦100,000,000")
+    .optional(),
   depositPercentage: z
     .number()
     .int("Deposit percentage must be a whole number")
     .min(10, "Minimum deposit is 10%")
     .max(100, "Maximum deposit is 100%"),
-})
+}).refine(
+  (data) => data.serviceType === "QUOTE_REQUIRED" || data.basePrice !== undefined,
+  { message: "Base price is required for Fixed Price services", path: ["basePrice"] }
+)
 
 /**
  * GET /api/services
@@ -78,14 +83,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Convert Naira to kobo for storage
-    const basePriceKobo = Math.round(parsed.data.basePrice * 100)
+    // Convert Naira to kobo for storage (0 for QUOTE_REQUIRED services)
+    const basePriceKobo = parsed.data.serviceType === "QUOTE_REQUIRED"
+      ? 0
+      : Math.round((parsed.data.basePrice ?? 0) * 100)
 
     const service = await prisma.service.create({
       data: {
         vendorId: session.user.id,
         name: parsed.data.name,
         description: parsed.data.description,
+        serviceType: parsed.data.serviceType,
         basePrice: basePriceKobo,
         depositPercentage: parsed.data.depositPercentage,
       },

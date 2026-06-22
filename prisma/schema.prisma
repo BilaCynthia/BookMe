@@ -59,6 +59,19 @@ enum RefundStatus {
   FAILED    // Refund could not be processed
 }
 
+enum ServiceType {
+  FIXED_PRICE    // Price is known upfront; client pays deposit immediately
+  QUOTE_REQUIRED // Pricing depends on requirements; vendor sends quote first
+}
+
+enum QuoteStatus {
+  PENDING   // Submitted by client, awaiting vendor review
+  QUOTED    // Vendor has sent a price quote to the client
+  ACCEPTED  // Client paid the deposit — booking confirmed
+  REJECTED  // Vendor declined the request
+  EXPIRED   // No action taken within 7 days of quote being sent
+}
+
 // ─────────────────────────────────────────────────────────
 // VENDOR
 // Core user entity. Event service provider.
@@ -94,6 +107,8 @@ model Vendor {
   refunds           Refund[]
   accounts          Account[]
   sessions          Session[]
+  quoteRequests     QuoteRequest[]
+  notifications     Notification[]
 
   @@index([slug])
   @@index([category])
@@ -107,20 +122,22 @@ model Vendor {
 // ─────────────────────────────────────────────────────────
 
 model Service {
-  id                String  @id @default(cuid())
+  id                String      @id @default(cuid())
   vendorId          String
-  name              String  @db.VarChar(100)
-  description       String  @db.VarChar(200)
-  basePrice         Int     // Stored in kobo. Min 100,000 (= NGN 1,000)
-  depositPercentage Int     // 10–100 inclusive
-  isActive          Boolean @default(true)
+  name              String      @db.VarChar(100)
+  description       String      @db.VarChar(200)
+  serviceType       ServiceType @default(FIXED_PRICE)
+  basePrice         Int         @default(0) // Kobo. 0 for QUOTE_REQUIRED services
+  depositPercentage Int         // 10–100 inclusive
+  isActive          Boolean     @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  vendor   Vendor    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
-  bookings Booking[]
+  vendor        Vendor         @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  bookings      Booking[]
+  quoteRequests QuoteRequest[]
 
   @@index([vendorId])
   @@index([vendorId, isActive])
@@ -190,6 +207,10 @@ model Booking {
   txRef            String?       @unique // Format: "bookme-[id]-[timestamp]"
   paymentReference String?       // Flutterwave payment reference
 
+  // Balance tracking (Hybrid Ledger)
+  balancePaid      Boolean       @default(false)
+  balancePaidAt    DateTime?
+
   // Timestamps
   paidAt           DateTime?
   expiresAt        DateTime      // PENDING expires after 60 minutes — used by cron
@@ -203,6 +224,7 @@ model Booking {
   payment          Payment?
   reservation      Reservation?
   refund           Refund?
+  quoteRequest     QuoteRequest?
 
   @@index([vendorId, status])
   @@index([txRef])
@@ -298,7 +320,53 @@ model Refund {
   @@map("refunds")
 }
 
+// ─────────────────────────────────────────────────────────
+// QUOTE REQUEST
+// Created when a client requests a quote for a QUOTE_REQUIRED service.
+// The vendor reviews and sends a quoted price + deposit %.
+// After the client pays the deposit, a Booking is created and the
+// date is blocked — identical to the FIXED_PRICE confirmation flow.
+// ─────────────────────────────────────────────────────────
 
+model QuoteRequest {
+  id        String      @id @default(cuid())
+  vendorId  String
+  serviceId String
+  bookingId String?     @unique // Set once client pays deposit
+
+  // Client info
+  clientName  String
+  clientEmail String
+  clientPhone String
+
+  // Request details
+  requestedDate DateTime  @db.Date
+  requirements  String    @db.VarChar(1000)
+  guestCount    Int?
+  eventType     String?   @db.VarChar(100)
+
+  // Quote details — filled in by vendor
+  quotedPrice       Int?      // Kobo
+  depositPercentage Int?      // 10–100
+  vendorMessage     String?   @db.VarChar(500)
+  quotedAt          DateTime?
+  expiresAt         DateTime? // 7 days after QUOTED status
+
+  status QuoteStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  vendor  Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  service Service  @relation(fields: [serviceId], references: [id])
+  booking Booking? @relation(fields: [bookingId], references: [id])
+
+  @@index([vendorId, status])
+  @@index([clientEmail])
+  @@index([expiresAt, status]) // For cron expiry
+  @@map("quote_requests")
+}
 
 // ─────────────────────────────────────────────────────────
 // WEBHOOK EVENT
@@ -387,5 +455,27 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+// ─────────────────────────────────────────────────────────
+// NOTIFICATION
+// ─────────────────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(cuid())
+  vendorId  String
+  title     String   @db.VarChar(100)
+  message   String   @db.VarChar(300)
+  type      String   @default("INFO") // "BOOKING", "QUOTE", "SYSTEM"
+  isRead    Boolean  @default(false)
+  link      String?  @db.VarChar(200)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendor    Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId, isRead])
+  @@map("notifications")
 }
 

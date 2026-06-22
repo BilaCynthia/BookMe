@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { KeyRound, ShieldAlert } from "lucide-react"
+import { DeleteAccountModal } from "@/components/dashboard/DeleteAccountModal"
 
 export const metadata = {
   title: "Settings - BookMe",
@@ -98,7 +99,7 @@ export default async function SettingsPage() {
                 Permanently remove your account and all associated data.
               </p>
             </div>
-            <Button variant="destructive" className="bg-destructive-foreground text-destructive hover:bg-destructive-foreground/90">Delete Account</Button>
+            <DeleteAccountModal />
           </div>
         </CardContent>
       </Card>

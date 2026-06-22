@@ -7,15 +7,15 @@
 @layer base {
   :root {
     --radius: 0.5rem;
-    --color-primary-hover: hsl(158, 30%, 36%);
-    --color-secondary-hover: hsl(34, 65%, 56%);
-    --color-error-hover: hsl(0, 75%, 35%);
+    --color-primary-hover: 158 30% 36%;
+    --color-secondary-hover: 34 65% 56%;
+    --color-error-hover: 0 75% 35%;
   }
   
   .dark {
-    --color-primary-hover: hsl(158, 30%, 36%);
-    --color-secondary-hover: hsl(34, 65%, 56%);
-    --color-error-hover: hsl(0, 75%, 35%);
+    --color-primary-hover: 158 30% 36%;
+    --color-secondary-hover: 34 65% 56%;
+    --color-error-hover: 0 75% 35%;
   }
 }
 

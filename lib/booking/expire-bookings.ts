@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db"
 import { logger } from "@/lib/logger"
 
-export async function expireStaleBookings(): Promise<number> {
+export async function expireStaleBookings(): Promise<{ bookings: number; quotes: number }> {
   const now = new Date()
 
   const staleBookings = await prisma.booking.findMany({
@@ -12,14 +12,31 @@ export async function expireStaleBookings(): Promise<number> {
     select: { id: true, vendorId: true, eventDate: true },
   })
 
-  if (staleBookings.length === 0) return 0
+  const staleQuotesCount = await prisma.quoteRequest.count({
+    where: {
+      status: "QUOTED",
+      expiresAt: { lt: now },
+    },
+  })
+
+  if (staleBookings.length === 0 && staleQuotesCount === 0) return { bookings: 0, quotes: 0 }
 
   await prisma.$transaction(async (tx) => {
-    // Expire all stale PENDING bookings
-    await tx.booking.updateMany({
-      where: { id: { in: staleBookings.map((b) => b.id) } },
-      data: { status: "EXPIRED" },
-    })
+    // 1. Expire Quotes
+    if (staleQuotesCount > 0) {
+      await tx.quoteRequest.updateMany({
+        where: { status: "QUOTED", expiresAt: { lt: now } },
+        data: { status: "EXPIRED" },
+      })
+    }
+
+    // 2. Expire Bookings
+    if (staleBookings.length > 0) {
+      await tx.booking.updateMany({
+        where: { id: { in: staleBookings.map((b) => b.id) } },
+        data: { status: "EXPIRED" },
+      })
+    }
 
     // Release PENDING_LOCK on availability slots
     for (const booking of staleBookings) {
@@ -35,6 +52,6 @@ export async function expireStaleBookings(): Promise<number> {
     }
   })
 
-  logger.info("bookings.expired", { count: staleBookings.length })
-  return staleBookings.length
+  logger.info("cron.expired", { bookings: staleBookings.length, quotes: staleQuotesCount })
+  return { bookings: staleBookings.length, quotes: staleQuotesCount }
 }

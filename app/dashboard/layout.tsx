@@ -4,6 +4,7 @@ import { LogOut } from "lucide-react"
 
 import { auth, signOut } from "@/lib/auth"
 import { DesktopNav, MobileNav } from "@/components/dashboard/Navigation"
+import { NotificationBell } from "@/components/dashboard/NotificationBell"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -38,20 +39,27 @@ export default async function DashboardLayout({ children }: { children: React.Re
             "use server"
             await signOut({ redirectTo: "/login" })
           }}>
-            <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10">
-              <LogOut className="h-4 w-4" /> Logout
+            <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 active:scale-95">
+              <LogOut className="h-4 w-4 pointer-events-none" /> <span className="pointer-events-none">Logout</span>
             </button>
           </form>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto pb-16 md:pb-0 relative">
+      <main className="flex-1 overflow-y-auto pb-16 md:pb-0 relative flex flex-col">
         {/* Subtle Background Glow for main content area */}
         <div className="absolute top-0 right-0 -z-10 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 -z-10 h-[500px] w-[500px] rounded-full bg-secondary/5 blur-[120px] pointer-events-none" />
         
-        {children}
+        {/* Top Header */}
+        <header className="sticky top-0 z-40 flex h-20 shrink-0 items-center justify-end px-6 md:px-10">
+          <NotificationBell />
+        </header>
+
+        <div className="flex-1">
+          {children}
+        </div>
       </main>
 
       {/* Mobile Bottom Tab Bar */}
@@ -61,9 +69,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
           "use server"
           await signOut({ redirectTo: "/login" })
         }}>
-          <button type="submit" className="flex flex-col items-center gap-1 p-2 text-destructive transition-colors">
-            <LogOut className="h-5 w-5" />
-            <span className="text-[10px] font-medium">Logout</span>
+          <button type="submit" className="flex flex-1 flex-col items-center justify-center gap-1.5 p-2 text-destructive transition-colors h-full active:scale-95">
+            <LogOut className="h-5 w-5 pointer-events-none" />
+            <span className="text-[10px] font-medium pointer-events-none">Logout</span>
           </button>
         </form>
       </nav>

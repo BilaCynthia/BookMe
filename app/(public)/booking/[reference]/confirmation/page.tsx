@@ -83,7 +83,7 @@ export default async function BookingConfirmationPage({
                 <div className="space-y-2 text-sm text-amber-600 dark:text-amber-400">
                   <p className="font-semibold">Localhost Webhook Limitation</p>
                   <p>
-                    Because you are running on <code>localhost</code>, Flutterwave cannot send the "payment successful" webhook to your computer. 
+                    Because you are running on <code>localhost</code>, Flutterwave cannot send the &quot;payment successful&quot; webhook to your computer. 
                   </p>
                   <p>
                     In a production environment, the webhook would arrive and automatically update this booking to <strong>CONFIRMED</strong>. To test this locally, you need to use a tool like <strong>ngrok</strong> to expose your localhost to the internet.

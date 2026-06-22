@@ -50,12 +50,12 @@ export default function LoginPage() {
 
   return (
     <div className="w-full space-y-8">
-      <div className="space-y-2 text-center md:text-left">
+      <div className="space-y-2 text-center">
         <h1 className="font-heading text-3xl font-extrabold tracking-tight text-foreground">
           Welcome back
         </h1>
-        <p className="text-base text-subtle">
-          Enter your credentials to sign in to your account
+        <p className="text-sm text-subtle font-medium">
+          Enter your credentials to sign in
         </p>
       </div>
 
@@ -69,7 +69,7 @@ export default function LoginPage() {
             placeholder="m@example.com"
             autoComplete="email"
             disabled={isLoading}
-            className="h-12 rounded-xl bg-surface border-border/60 focus:border-primary transition-colors"
+            className="h-12 rounded-2xl bg-background/50 border-border/40 focus:border-primary focus:bg-background transition-all"
             required
           />
           <div className="space-y-1">
@@ -80,13 +80,13 @@ export default function LoginPage() {
               label="Password"
               autoComplete="current-password"
               disabled={isLoading}
-              className="h-12 rounded-xl bg-surface border-border/60 focus:border-primary transition-colors"
+              className="h-12 rounded-2xl bg-background/50 border-border/40 focus:border-primary focus:bg-background transition-all"
               required
             />
             <div className="flex justify-end pt-1">
               <Link
                 href="/forgot-password"
-                className="text-sm font-medium text-primary hover:underline underline-offset-4 transition-all"
+                className="text-xs font-semibold text-primary/80 hover:text-primary transition-colors"
               >
                 Forgot password?
               </Link>
@@ -104,15 +104,15 @@ export default function LoginPage() {
           type="submit" 
           fullWidth 
           isLoading={isLoading} 
-          className="h-12 rounded-xl text-base font-semibold shadow-md transition-all hover:shadow-lg mt-2"
+          className="h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 mt-2"
         >
           Sign In
         </Button>
       </form>
 
-      <div className="text-center text-sm text-subtle">
+      <div className="text-center text-sm font-medium text-subtle">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-bold text-primary hover:underline underline-offset-4 transition-all">
+        <Link href="/signup" className="font-bold text-primary hover:text-primary-hover transition-colors">
           Sign up
         </Link>
       </div>

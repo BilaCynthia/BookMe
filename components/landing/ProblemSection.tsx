@@ -1,16 +1,16 @@
 export function ProblemSection() {
   return (
     <section className="bg-background px-4 py-12 md:px-6 md:py-20">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-6xl">
         <div className="mb-10 text-center md:mb-14">
           <div className="inline-flex items-center gap-2 rounded-full bg-secondary/10 px-3 py-1 mb-4 text-xs font-bold uppercase tracking-widest text-secondary">
             Sound familiar?
           </div>
           <h2 className="mb-4 font-heading text-3xl font-extrabold text-foreground md:text-4xl tracking-tight">
-            You're losing money every time you hold a date.
+            You&apos;re losing money every time you hold a date.
           </h2>
           <p className="mx-auto max-w-2xl text-base text-subtle md:text-lg leading-relaxed">
-            Most vendors confirm bookings over WhatsApp with a promise. Here's what that really costs you.
+            Most vendors confirm bookings over WhatsApp with a promise. Here&apos;s what that really costs you.
           </p>
         </div>
 
@@ -52,7 +52,7 @@ export function ProblemSection() {
                 Deposits get chased forever.
               </h3>
               <p className="text-sm leading-relaxed text-subtle">
-                Days pass, follow-ups pile up, and some clients disappear without paying. You are left checking your bank app every 3 hours wondering if they're serious.
+                Days pass, follow-ups pile up, and some clients disappear without paying. You are left checking your bank app every 3 hours wondering if they&apos;re serious.
               </p>
             </div>
           </div>
@@ -92,7 +92,7 @@ export function ProblemSection() {
                 Endless back-and-forth.
               </h3>
               <p className="text-sm leading-relaxed text-subtle">
-                You waste hours answering 'are you available?' and sending your pricing PDF to people who never book.
+                You waste hours answering &apos;are you available?&apos; and sending your pricing PDF to people who never book.
               </p>
             </div>
           </div>

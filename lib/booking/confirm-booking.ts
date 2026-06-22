@@ -36,6 +36,18 @@ export async function confirmBooking(
       },
     })
 
+    // If this booking originated from a quote request, mark quote as ACCEPTED
+    const quoteReq = await tx.quoteRequest.findUnique({
+      where: { bookingId: booking.id },
+      select: { id: true },
+    })
+    if (quoteReq) {
+      await tx.quoteRequest.update({
+        where: { id: quoteReq.id },
+        data: { status: "ACCEPTED" },
+      })
+    }
+
     // Block the availability slot
     await tx.availabilitySlot.upsert({
       where: {
@@ -70,6 +82,17 @@ export async function confirmBooking(
     await tx.webhookEvent.update({
       where: { id: webhookEventId },
       data: { processed: true, processedAt: new Date() },
+    })
+
+    // Create Notification for the vendor
+    await tx.notification.create({
+      data: {
+        vendorId: booking.vendorId,
+        title: "New Booking Confirmed! 🎉",
+        message: `${booking.clientName} booked ${booking.service.name} for ${booking.eventDate.toLocaleDateString("en-NG", { month: "short", day: "numeric", year: "numeric" })}.`,
+        type: "BOOKING",
+        link: `/dashboard/bookings/${booking.id}`,
+      },
     })
 
     return booking

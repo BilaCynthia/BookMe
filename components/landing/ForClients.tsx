@@ -50,7 +50,7 @@ export function ForClients() {
                   Your date is guaranteed.
                 </h3>
                 <p className="text-sm leading-relaxed text-subtle">
-                  Once you pay, the vendor's date is locked for you. No one else can take it.
+                  Once you pay, the vendor&apos;s date is locked for you. No one else can take it.
                 </p>
               </div>
             </div>

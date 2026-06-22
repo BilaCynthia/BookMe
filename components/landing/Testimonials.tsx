@@ -14,29 +14,29 @@ export function Testimonials() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="flex flex-col justify-between rounded-lg border border-border bg-surface p-6">
-            <p className="font-serif text-sm italic leading-relaxed text-foreground">
-              "I used to hold dates for people who never paid. With BookMe, if there's no deposit, there's no booking. Simple."
+          <div className="flex flex-col justify-between rounded-2xl bg-primary p-8 shadow-lg transition-transform hover:-translate-y-1">
+            <p className="font-serif text-base italic leading-relaxed text-primary-foreground/90">
+              &quot;I used to hold dates for people who never paid. With BookMe, if there&apos;s no deposit, there&apos;s no booking. Simple.&quot;
             </p>
-            <p className="mt-6 text-xs font-medium text-subtle">
+            <p className="mt-8 text-sm font-medium text-secondary">
               Sade A., Wedding Photographer, Lagos
             </p>
           </div>
 
-          <div className="flex flex-col justify-between rounded-lg border border-border bg-surface p-6">
-            <p className="font-serif text-sm italic leading-relaxed text-foreground">
-              "My clients actually take the booking seriously now. They show up because they've already paid."
+          <div className="flex flex-col justify-between rounded-2xl bg-primary p-8 shadow-lg transition-transform hover:-translate-y-1">
+            <p className="font-serif text-base italic leading-relaxed text-primary-foreground/90">
+              &quot;My clients actually take the booking seriously now. They show up because they&apos;ve already paid.&quot;
             </p>
-            <p className="mt-6 text-xs font-medium text-subtle">
+            <p className="mt-8 text-sm font-medium text-secondary">
               Emeka O., Event Decorator, Abuja
             </p>
           </div>
 
-          <div className="flex flex-col justify-between rounded-lg border border-border bg-surface p-6">
-            <p className="font-serif text-sm italic leading-relaxed text-foreground">
-              "I shared my BookMe link in my Instagram bio and got two confirmed bookings in the first week."
+          <div className="flex flex-col justify-between rounded-2xl bg-primary p-8 shadow-lg transition-transform hover:-translate-y-1">
+            <p className="font-serif text-base italic leading-relaxed text-primary-foreground/90">
+              &quot;I shared my BookMe link in my Instagram bio and got two confirmed bookings in the first week.&quot;
             </p>
-            <p className="mt-6 text-xs font-medium text-subtle">
+            <p className="mt-8 text-sm font-medium text-secondary">
               Chisom N., Makeup Artist, Port Harcourt
             </p>
           </div>

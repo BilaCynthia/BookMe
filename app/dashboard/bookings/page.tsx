@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
 import { BookingStatusBadge } from "@/components/ui/Badge"
 import { format } from "date-fns"
+import { BalanceActionButton } from "@/components/dashboard/BalanceActionButton"
 
 export const metadata = {
   title: "Bookings - BookMe",
@@ -81,32 +82,58 @@ export default async function BookingsPage() {
                     <th scope="col" className="px-6 py-3 font-medium">Client</th>
                     <th scope="col" className="px-6 py-3 font-medium">Service</th>
                     <th scope="col" className="px-6 py-3 font-medium">Status</th>
-                    <th scope="col" className="px-6 py-3 font-medium text-right">Deposit</th>
+                    <th scope="col" className="px-6 py-3 font-medium text-right">Net Deposit</th>
+                    <th scope="col" className="px-6 py-3 font-medium text-right">Final Balance</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {bookings?.map((booking: BookingWithService) => (
-                    <tr key={booking.id} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-foreground">
-                          {booking.eventDate ? format(new Date(booking.eventDate), "MMM d, yyyy") : "No Date"}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-foreground">{booking.clientName || "Unknown Client"}</div>
-                        <div className="text-xs text-muted-foreground">{booking.clientEmail || "No Email"}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-muted-foreground">{booking.service?.name || "Unknown Service"}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <BookingStatusBadge status={booking.status} />
-                      </td>
-                      <td className="px-6 py-4 text-right font-medium">
-                        {formatNgn(booking.depositAmount)}
-                      </td>
-                    </tr>
-                  ))}
+                  {bookings?.map((booking: BookingWithService) => {
+                    const balanceAmount = (booking.basePrice || 0) - (booking.depositAmount || 0);
+                    
+                    return (
+                      <tr key={booking.id} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="font-medium text-foreground">
+                            {booking.eventDate ? format(new Date(booking.eventDate), "MMM d, yyyy") : "No Date"}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-foreground">{booking.clientName || "Unknown Client"}</div>
+                          <div className="text-xs text-muted-foreground">{booking.clientEmail || "No Email"}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-muted-foreground">{booking.service?.name || "Unknown Service"}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <BookingStatusBadge status={booking.status} />
+                        </td>
+                        <td className="px-6 py-4 text-right font-medium">
+                          {formatNgn(Math.floor((booking.depositAmount || 0) * 0.95))}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          {booking.status === "CONFIRMED" ? (
+                            booking.balancePaid ? (
+                              <div className="flex flex-col gap-1 items-end">
+                                <span className="font-semibold text-muted-foreground line-through">
+                                  {formatNgn(balanceAmount)}
+                                </span>
+                                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold bg-primary/10 text-primary">
+                                  Paid
+                                </span>
+                              </div>
+                            ) : (
+                              <BalanceActionButton 
+                                bookingId={booking.id} 
+                                formattedAmount={formatNgn(balanceAmount)}
+                              />
+                            )
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

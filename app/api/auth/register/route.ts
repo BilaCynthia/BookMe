@@ -3,6 +3,7 @@ import { z } from "zod"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/db"
 import { logger } from "@/lib/logger"
+import { sendWelcomeEmail } from "@/lib/emails/send-welcome-email"
 
 function slugify(text: string) {
   return text
@@ -41,7 +42,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { email, password, name } = parsed.data
+    const password = parsed.data.password
+    const name = parsed.data.name
+    const email = parsed.data.email.toLowerCase()
 
     const existingVendor = await prisma.vendor.findUnique({
       where: { email },
@@ -53,7 +56,11 @@ export async function POST(request: NextRequest) {
         { status: 409 }
       )
     }
-    const passwordHash = await bcrypt.hash(password, 12)
+    
+    // Use 10 salt rounds instead of 12. 
+    // Pure JS bcryptjs with 12 rounds blocks the Node event loop for 1-3 seconds.
+    // 10 rounds is the industry standard for JS implementations and takes ~80ms.
+    const passwordHash = await bcrypt.hash(password, 10)
 
     // Generate unique slug
     const baseSlug = slugify(name) || "vendor"
@@ -81,11 +88,20 @@ export async function POST(request: NextRequest) {
 
     logger.info("vendor.registered", { vendorId: vendor.id, email })
 
+    // Send welcome email
+    await sendWelcomeEmail({
+      name: vendor.name || "Vendor",
+      email: vendor.email,
+      slug: vendor.slug || "",
+    }).catch((err) => {
+      logger.error("email.welcome.error", err)
+    })
+
     return NextResponse.json({ success: true, vendorId: vendor.id }, { status: 201 })
   } catch (error) {
     logger.error("vendor.registration.failed", error as Error)
     return NextResponse.json(
-      { error: "INTERNAL_ERROR", message: "Something went wrong." },
+      { error: "INTERNAL_ERROR", message: "Something went wrong.", details: String(error) },
       { status: 500 }
     )
   }

@@ -1,28 +1,44 @@
-// lib/db.ts (reloaded)
+// lib/db.ts
 // Prisma Client Singleton
 //
 // This is the ONLY place PrismaClient is instantiated in the entire codebase.
 // Import { prisma } from "@/lib/db" everywhere else.
 // Never call `new PrismaClient()` directly in any other file.
 //
-// In serverless environments (Vercel), each function invocation can create a new
-// module instance. Without this singleton pattern, each cold start would open a
-// new database connection, quickly exhausting the PostgreSQL connection limit.
-// The global cache (`globalThis.__prisma`) persists across hot reloads in dev.
+// Uses the standard Prisma Rust engine with Neon pooler (pgbouncer=true).
+//
+// The global cache (`globalThis.prismaGlobal`) persists across hot reloads in dev.
 
 import { PrismaClient } from "@prisma/client"
-import { Pool } from "pg"
-import { PrismaPg } from "@prisma/adapter-pg"
+import { neonConfig } from "@neondatabase/serverless"
+import { PrismaNeon } from "@prisma/adapter-neon"
+import ws from "ws"
+
+// Required in Node.js — Neon's driver uses WebSockets instead of TCP
+neonConfig.webSocketConstructor = ws
 
 const prismaClientSingleton = () => {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-  const adapter = new PrismaPg(pool)
-  
+  let connectionString = process.env.DATABASE_URL
+  if (!connectionString) {
+    throw new Error(
+      "DATABASE_URL environment variable is not set. " +
+      "Please add it to your .env.local file."
+    )
+  }
+
+  // Strip channel_binding parameter — Neon's WebSocket driver doesn't support it
+  // and it causes silent connection failures.
+  const url = new URL(connectionString)
+  url.searchParams.delete("channel_binding")
+  connectionString = url.toString()
+
+  const adapter = new PrismaNeon({ connectionString })
+
   return new PrismaClient({
     adapter,
     log:
       process.env.NODE_ENV === "development"
-        ? ["query", "error", "warn"]
+        ? ["error", "warn"]
         : ["error"],
   })
 }
@@ -37,3 +53,4 @@ export const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
 if (process.env.NODE_ENV !== "production") {
   globalThis.prismaGlobal = prisma
 }
+

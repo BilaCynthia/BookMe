@@ -28,6 +28,7 @@ interface Service {
   id: string
   name: string
   description: string
+  serviceType: "FIXED_PRICE" | "QUOTE_REQUIRED"
   basePrice: number       // stored in kobo
   depositPercentage: number
   isActive: boolean
@@ -41,13 +42,15 @@ interface ServiceManagerProps {
 interface FormData {
   name: string
   description: string
-  basePrice: string       // string for form input — converted to number on submit
+  serviceType: "FIXED_PRICE" | "QUOTE_REQUIRED"
+  basePrice: string
   depositPercentage: string
 }
 
 interface FieldErrors {
   name?: string[]
   description?: string[]
+  serviceType?: string[]
   basePrice?: string[]
   depositPercentage?: string[]
 }
@@ -55,6 +58,7 @@ interface FieldErrors {
 const EMPTY_FORM: FormData = {
   name: "",
   description: "",
+  serviceType: "FIXED_PRICE",
   basePrice: "",
   depositPercentage: "50",
 }
@@ -66,10 +70,7 @@ function formatNaira(kobo: number): string {
   return `₦${(kobo / 100).toLocaleString("en-NG")}`
 }
 
-/** Calculate deposit amount in kobo */
-function calcDeposit(basePriceKobo: number, pct: number): number {
-  return Math.floor(basePriceKobo * pct / 100)
-}
+
 
 // ─── Component ─────────────────────────────────────────────────
 
@@ -101,7 +102,8 @@ export function ServiceManager({ initialServices }: ServiceManagerProps) {
     setFormData({
       name: service.name,
       description: service.description,
-      basePrice: String(service.basePrice / 100), // kobo → Naira
+      serviceType: service.serviceType,
+      basePrice: service.serviceType === "FIXED_PRICE" ? String(service.basePrice / 100) : "",
       depositPercentage: String(service.depositPercentage),
     })
     setEditingId(service.id)
@@ -122,32 +124,28 @@ export function ServiceManager({ initialServices }: ServiceManagerProps) {
   // ── Client-side validation ──
   function validate(): boolean {
     const newErrors: FieldErrors = {}
-    if (!formData.name || formData.name.trim().length < 2) {
+    if (!formData.name || formData.name.trim().length < 2)
       newErrors.name = ["Service name must be at least 2 characters"]
-    }
-    if (formData.name && formData.name.length > 100) {
+    if (formData.name && formData.name.length > 100)
       newErrors.name = ["Service name must be 100 characters or less"]
-    }
-    if (!formData.description || formData.description.trim().length < 2) {
+    if (!formData.description || formData.description.trim().length < 2)
       newErrors.description = ["Description must be at least 2 characters"]
-    }
-    if (formData.description && formData.description.length > 200) {
+    if (formData.description && formData.description.length > 200)
       newErrors.description = ["Description must be 200 characters or less"]
+
+    if (formData.serviceType === "FIXED_PRICE") {
+      const price = Number(formData.basePrice)
+      if (!formData.basePrice || isNaN(price) || price < 1000)
+        newErrors.basePrice = ["Minimum price is ₦1,000"]
+      if (price > 100_000_000)
+        newErrors.basePrice = ["Maximum price is ₦100,000,000"]
     }
-    const price = Number(formData.basePrice)
-    if (!formData.basePrice || isNaN(price) || price < 1000) {
-      newErrors.basePrice = ["Minimum price is ₦1,000"]
-    }
-    if (price > 100_000_000) {
-      newErrors.basePrice = ["Maximum price is ₦100,000,000"]
-    }
+
     const deposit = Number(formData.depositPercentage)
-    if (!formData.depositPercentage || isNaN(deposit) || deposit < 10 || deposit > 100) {
+    if (!formData.depositPercentage || isNaN(deposit) || deposit < 10 || deposit > 100)
       newErrors.depositPercentage = ["Deposit must be between 10% and 100%"]
-    }
-    if (deposit !== Math.floor(deposit)) {
+    if (deposit !== Math.floor(deposit))
       newErrors.depositPercentage = ["Deposit percentage must be a whole number"]
-    }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -165,7 +163,8 @@ export function ServiceManager({ initialServices }: ServiceManagerProps) {
     const payload = {
       name: formData.name.trim(),
       description: formData.description.trim(),
-      basePrice: Number(formData.basePrice),
+      serviceType: formData.serviceType,
+      basePrice: formData.serviceType === "FIXED_PRICE" ? Number(formData.basePrice) : undefined,
       depositPercentage: Number(formData.depositPercentage),
     }
 
@@ -250,10 +249,10 @@ export function ServiceManager({ initialServices }: ServiceManagerProps) {
     }
   }
 
-  // ── Deposit preview calculation ──
+  const isFixedPrice = formData.serviceType === "FIXED_PRICE"
   const previewPrice = Number(formData.basePrice) || 0
   const previewPct = Number(formData.depositPercentage) || 0
-  const previewDeposit = previewPrice > 0 && previewPct > 0
+  const previewDeposit = isFixedPrice && previewPrice > 0 && previewPct > 0
     ? Math.floor(previewPrice * previewPct / 100)
     : 0
 
@@ -303,6 +302,40 @@ export function ServiceManager({ initialServices }: ServiceManagerProps) {
                 <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
                   <AlertCircle className="h-4 w-4 shrink-0" />
                   {apiError}
+                </div>
+              )}
+
+              {/* Service Type Toggle */}
+              {!editingId && (
+                <div className="space-y-3">
+                  <label className="text-sm font-medium leading-none">Service Type</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {(["FIXED_PRICE", "QUOTE_REQUIRED"] as const).map((type) => {
+                      const isSelected = formData.serviceType === type
+                      return (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setFormData((p) => ({ ...p, serviceType: type, basePrice: "" }))}
+                          className={cn(
+                            "flex flex-col gap-1 rounded-xl border-2 p-3 text-left transition-all",
+                            isSelected
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:border-primary/30"
+                          )}
+                        >
+                          <span className={cn("text-sm font-semibold", isSelected ? "text-primary" : "text-foreground")}>
+                            {type === "FIXED_PRICE" ? "Fixed Price" : "Quote Required"}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {type === "FIXED_PRICE"
+                              ? "Price set upfront, client pays deposit immediately."
+                              : "Price varies. Client requests a quote first."}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
               )}
 
@@ -365,39 +398,31 @@ export function ServiceManager({ initialServices }: ServiceManagerProps) {
 
               {/* Price & Deposit */}
               <div className="grid gap-5 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="service-price"
-                    className="text-sm font-medium leading-none"
-                  >
-                    Base Price (₦)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium">
-                      ₦
-                    </span>
-                    <Input
-                      id="service-price"
-                      type="number"
-                      placeholder="150000"
-                      value={formData.basePrice}
-                      onChange={(e) =>
-                        setFormData((p) => ({ ...p, basePrice: e.target.value }))
-                      }
-                      error={errors.basePrice?.[0]}
-                      className="pl-8"
-                      min={1000}
-                      step={100}
-                    />
+                {isFixedPrice && (
+                  <div className="space-y-1.5">
+                    <label htmlFor="service-price" className="text-sm font-medium leading-none">
+                      Base Price (₦)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium">₦</span>
+                      <Input
+                        id="service-price"
+                        type="number"
+                        placeholder="150000"
+                        value={formData.basePrice}
+                        onChange={(e) => setFormData((p) => ({ ...p, basePrice: e.target.value }))}
+                        error={errors.basePrice?.[0]}
+                        className="pl-8"
+                        min={1000}
+                        step={100}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="service-deposit"
-                    className="text-sm font-medium leading-none"
-                  >
-                    Deposit Percentage
+                <div className={cn("space-y-1.5", !isFixedPrice && "col-span-2")}>
+                  <label htmlFor="service-deposit" className="text-sm font-medium leading-none">
+                    {isFixedPrice ? "Deposit Percentage" : "Default Deposit % (applied to quote price)"}
                   </label>
                   <div className="relative">
                     <Input
@@ -405,20 +430,13 @@ export function ServiceManager({ initialServices }: ServiceManagerProps) {
                       type="number"
                       placeholder="50"
                       value={formData.depositPercentage}
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          depositPercentage: e.target.value,
-                        }))
-                      }
+                      onChange={(e) => setFormData((p) => ({ ...p, depositPercentage: e.target.value }))}
                       error={errors.depositPercentage?.[0]}
                       className="pr-8"
                       min={10}
                       max={100}
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium">
-                      %
-                    </span>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium">%</span>
                   </div>
                 </div>
               </div>
@@ -560,7 +578,6 @@ function ServiceCard({
   isDeleting,
   isToggling,
 }: ServiceCardProps) {
-  const depositAmount = calcDeposit(service.basePrice, service.depositPercentage)
 
   return (
     <Card
@@ -591,28 +608,20 @@ function ServiceCard({
         {/* Pricing info */}
         <div className="grid grid-cols-3 gap-3 rounded-lg bg-muted/30 p-3 mb-4">
           <div>
-            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
-              Price
-            </p>
+            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Type</p>
             <p className="text-sm font-bold text-foreground mt-0.5">
-              {formatNaira(service.basePrice)}
+              {service.serviceType === "QUOTE_REQUIRED" ? "Quote" : "Fixed"}
             </p>
           </div>
           <div>
-            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
-              Deposit
-            </p>
-            <p className="text-sm font-bold text-secondary-foreground mt-0.5">
-              {service.depositPercentage}%
+            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Price</p>
+            <p className="text-sm font-bold text-foreground mt-0.5">
+              {service.serviceType === "FIXED_PRICE" ? formatNaira(service.basePrice) : "Varies"}
             </p>
           </div>
           <div>
-            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
-              Due
-            </p>
-            <p className="text-sm font-bold text-foreground mt-0.5">
-              {formatNaira(depositAmount)}
-            </p>
+            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Deposit</p>
+            <p className="text-sm font-bold text-secondary-foreground mt-0.5">{service.depositPercentage}%</p>
           </div>
         </div>
 
