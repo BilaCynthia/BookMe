@@ -10,29 +10,20 @@
 // The global cache (`globalThis.prismaGlobal`) persists across hot reloads in dev.
 
 import { PrismaClient } from "@prisma/client"
-import { neonConfig } from "@neondatabase/serverless"
-import { PrismaNeon } from "@prisma/adapter-neon"
-import ws from "ws"
-
-// Required in Node.js — Neon's driver uses WebSockets instead of TCP
-neonConfig.webSocketConstructor = ws
+import { Pool } from "pg"
+import { PrismaPg } from "@prisma/adapter-pg"
 
 const prismaClientSingleton = () => {
-  let connectionString = process.env.DATABASE_URL
-  if (!connectionString) {
+  const dbUrl = process.env.DATABASE_URL
+  if (!dbUrl) {
     throw new Error(
       "DATABASE_URL environment variable is not set. " +
       "Please add it to your .env.local file."
     )
   }
 
-  // Strip channel_binding parameter — Neon's WebSocket driver doesn't support it
-  // and it causes silent connection failures.
-  const url = new URL(connectionString)
-  url.searchParams.delete("channel_binding")
-  connectionString = url.toString()
-
-  const adapter = new PrismaNeon({ connectionString })
+  const pool = new Pool({ connectionString: dbUrl })
+  const adapter = new PrismaPg(pool)
 
   return new PrismaClient({
     adapter,

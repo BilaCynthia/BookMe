@@ -29,12 +29,34 @@ export default async function CalendarPage() {
         gte: today,
       },
     },
-    include: {
-      booking: true,
-    },
     orderBy: {
       date: "asc",
     },
+  })
+
+  // Fetch all active bookings from today onwards
+  const activeBookings = await prisma.booking.findMany({
+    where: {
+      vendorId,
+      eventDate: {
+        gte: today,
+      },
+      status: { in: ["PENDING", "CONFIRMED"] }
+    },
+    orderBy: {
+      createdAt: "asc"
+    }
+  })
+
+  // Group bookings by date string (YYYY-MM-DD)
+  const bookingsByDate: Record<string, typeof activeBookings> = {}
+  activeBookings.forEach(booking => {
+    // Only include pending bookings if they are not expired
+    if (booking.status === "PENDING" && new Date(booking.expiresAt) < new Date()) return;
+    
+    const dateStr = format(booking.eventDate, "yyyy-MM-dd")
+    if (!bookingsByDate[dateStr]) bookingsByDate[dateStr] = []
+    bookingsByDate[dateStr].push(booking)
   })
 
   // Pass existing open dates to the modal so it can grey them out
@@ -68,6 +90,9 @@ export default async function CalendarPage() {
             <div className="space-y-4">
               {slots.map((slot) => {
                 const isBooked = slot.status === "BLOCKED" || slot.status === "PENDING_LOCK"
+                const dateStr = format(slot.date, "yyyy-MM-dd")
+                const slotBookings = bookingsByDate[dateStr] || []
+                
                 return (
                   <div 
                     key={slot.id} 
@@ -75,27 +100,37 @@ export default async function CalendarPage() {
                       isBooked ? "bg-muted/30 border-primary/20" : "bg-card hover:bg-muted/50"
                     }`}
                   >
-                    <div className="flex items-center space-x-4 mb-4 sm:mb-0">
-                      <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-md ${
+                    <div className="flex items-start space-x-4 mb-4 sm:mb-0">
+                      <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-md mt-1 ${
                         isBooked ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                       }`}>
                         <span className="text-xs font-semibold uppercase">{format(slot.date, "MMM")}</span>
                         <span className="text-xl font-bold leading-none">{format(slot.date, "dd")}</span>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium">
+                      <div className="flex flex-col gap-2">
+                        <p className="text-sm font-medium pt-1">
                           {format(slot.date, "EEEE, MMMM do, yyyy")}
                         </p>
-                        {slot.booking && (
-                          <div className="flex items-center text-sm text-muted-foreground mt-1">
-                            <span className="font-semibold text-foreground mr-1">{slot.booking.clientName}</span>
-                            — {slot.booking.eventDescription || "Standard Booking"}
+                        
+                        {slotBookings.length > 0 && (
+                          <div className="flex flex-col gap-1.5 mt-1">
+                            {slotBookings.map((booking, idx) => (
+                              <div key={booking.id} className="flex items-center text-sm text-muted-foreground bg-background rounded p-1.5 px-2 border">
+                                <span className="font-semibold text-foreground mr-1 truncate max-w-[120px]">{booking.clientName}</span>
+                                <span className="truncate max-w-[150px] mr-2">— {booking.eventDescription || "Standard Booking"}</span>
+                                {booking.status === "PENDING" ? (
+                                  <Badge variant="outline" className="text-[10px] h-4 py-0 px-1 ml-auto shrink-0 bg-amber-50 text-amber-700 border-amber-200">Pending</Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-[10px] h-4 py-0 px-1 ml-auto shrink-0 bg-emerald-50 text-emerald-700 border-emerald-200">Confirmed</Badge>
+                                )}
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between sm:justify-end space-x-4 w-full sm:w-auto">
+                    <div className="flex items-center justify-between sm:justify-end space-x-4 w-full sm:w-auto h-full sm:self-start sm:mt-2">
                       {slot.status === "OPEN" && (
                         <Badge variant="outline" className="text-emerald-600 border-emerald-600/30 bg-emerald-50">
                           Available
@@ -103,7 +138,7 @@ export default async function CalendarPage() {
                       )}
                       {slot.status === "BLOCKED" && (
                         <Badge variant="default" className="bg-primary/10 text-primary hover:bg-primary/20 border-0">
-                          Booked
+                          Fully Booked
                         </Badge>
                       )}
                       {slot.status === "PENDING_LOCK" && (

@@ -48,22 +48,15 @@ export async function confirmBooking(
       })
     }
 
-    // Block the availability slot
-    await tx.availabilitySlot.upsert({
-      where: {
-        vendorId_date: {
-          vendorId: booking.vendorId,
-          date: booking.eventDate,
-        },
-      },
-      update: { status: "BLOCKED", bookingId: booking.id },
-      create: {
-        vendorId: booking.vendorId,
-        date: booking.eventDate,
-        status: "BLOCKED",
-        bookingId: booking.id,
-      },
-    })
+    // Use updateSlotStatus instead of blindly blocking
+    // First ensure the slot exists, just in case (though it should exist from initiateBooking)
+    await tx.$executeRaw`
+      INSERT INTO "availability_slots" ("id", "vendorId", "date", "status", "updatedAt")
+      VALUES (gen_random_uuid()::text, ${booking.vendorId}, ${booking.eventDate}::date, 'OPEN'::"AvailabilityStatus", NOW())
+      ON CONFLICT ("vendorId", "date") DO NOTHING
+    `
+    const { updateSlotStatus } = await import("../availability/update-slot-status")
+    await updateSlotStatus(tx, booking.vendorId, booking.eventDate)
 
     // Create payment record
     await tx.payment.create({

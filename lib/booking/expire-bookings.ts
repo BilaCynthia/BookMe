@@ -38,17 +38,10 @@ export async function expireStaleBookings(): Promise<{ bookings: number; quotes:
       })
     }
 
-    // Release PENDING_LOCK on availability slots
+    // Release PENDING_LOCK on availability slots dynamically
+    const { updateSlotStatus } = await import("../availability/update-slot-status")
     for (const booking of staleBookings) {
-      await tx.availabilitySlot.updateMany({
-        where: {
-          vendorId: booking.vendorId,
-          date: booking.eventDate,
-          status: "PENDING_LOCK",
-          bookingId: booking.id,
-        },
-        data: { status: "OPEN", bookingId: null },
-      })
+      await updateSlotStatus(tx, booking.vendorId, booking.eventDate)
     }
   })
 

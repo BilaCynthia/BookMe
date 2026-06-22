@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error opening dates:", error)
     return NextResponse.json(
-      { error: "Failed to open dates" },
+      { error: `Failed to open dates: ${error instanceof Error ? error.message : String(error)}` },
       { status: 500 }
     )
   }
