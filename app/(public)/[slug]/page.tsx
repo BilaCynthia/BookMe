@@ -3,6 +3,7 @@ import Link from "next/link"
 import { prisma } from "@/lib/db"
 import { MapPin, AtSign, CheckCircle2, CalendarDays } from "lucide-react"
 import { Button } from "@/components/ui/Button"
+import { ProfileViewTracker } from "@/components/vendor/ProfileViewTracker"
 
 // Make this page dynamic or revalidate as needed
 export const revalidate = 60 // Revalidate every 60 seconds

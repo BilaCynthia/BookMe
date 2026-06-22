@@ -8,6 +8,7 @@ export interface InitiatePaymentParams {
   serviceDescription: string
   redirectUrl: string           // Where Flutterwave sends client after payment
   meta?: Record<string, string> // e.g., { booking_reference: "BKM-XXXX" }
+  subaccountId?: string         // Vendor's subaccount ID for split payouts
 }
 
 export interface InitiatePaymentResult {
@@ -42,6 +43,13 @@ export async function initiateFlutterwavePayment(
       },
       meta: params.meta ?? {},
       payment_options: "card, banktransfer, ussd",
+      ...(params.subaccountId && {
+        subaccounts: [
+          {
+            id: params.subaccountId,
+          },
+        ],
+      }),
     }),
   })
 

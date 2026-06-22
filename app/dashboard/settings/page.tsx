@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { KeyRound, ShieldAlert } from "lucide-react"
 import { DeleteAccountModal } from "@/components/dashboard/DeleteAccountModal"
+import { PayoutSettingsCard } from "@/components/dashboard/PayoutSettingsCard"
 
 export const metadata = {
   title: "Settings - BookMe",
@@ -83,6 +84,8 @@ export default async function SettingsPage() {
           )}
         </CardContent>
       </Card>
+
+      <PayoutSettingsCard hasSubaccount={!!vendor.flwSubaccountId} />
 
       <Card className="border-destructive/50">
         <CardHeader>

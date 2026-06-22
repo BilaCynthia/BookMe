@@ -4,8 +4,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-background overflow-hidden selection:bg-primary/20">
       {/* Background aesthetic blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[120px] opacity-70 animate-in fade-in duration-1000" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-secondary/20 blur-[120px] opacity-70 animate-in fade-in duration-1000 delay-300" />
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[120px] opacity-70 animate-in fade-in duration-1000 pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-secondary/20 blur-[120px] opacity-70 animate-in fade-in duration-1000 delay-300 pointer-events-none" />
       
       <div className="relative z-10 w-full max-w-[440px] p-6 animate-in fade-in slide-in-from-bottom-8 duration-500">
         {/* Header centered above the card */}

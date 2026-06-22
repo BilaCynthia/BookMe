@@ -53,6 +53,11 @@ enum PaymentStatus {
   REFUNDED // Deposit refunded (Post-MVP)
 }
 
+enum PaymentType {
+  DEPOSIT
+  BALANCE
+}
+
 enum RefundStatus {
   PENDING   // Refund requested, awaiting admin review
   PROCESSED // Refund completed successfully
@@ -93,6 +98,9 @@ model Vendor {
   profileComplete Boolean         @default(false)
   passwordHash    String?
   emailVerified   DateTime?
+  timezone        String          @default("Africa/Lagos")
+  flwSubaccountId String?
+  profileViews    Int             @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -211,6 +219,11 @@ model Booking {
   balancePaid      Boolean       @default(false)
   balancePaidAt    DateTime?
 
+  // Review System
+  rating           Int?          // 1 to 5
+  review           String?       @db.VarChar(500)
+  reviewSubmittedAt DateTime?
+
   // Timestamps
   paidAt           DateTime?
   expiresAt        DateTime      // PENDING expires after 60 minutes — used by cron
@@ -221,7 +234,7 @@ model Booking {
   vendor           Vendor            @relation(fields: [vendorId], references: [id])
   service          Service           @relation(fields: [serviceId], references: [id])
   availabilitySlot AvailabilitySlot?
-  payment          Payment?
+  payments         Payment[]
   reservation      Reservation?
   refund           Refund?
   quoteRequest     QuoteRequest?
@@ -268,12 +281,13 @@ model Reservation {
 
 model Payment {
   id        String        @id @default(cuid())
-  bookingId String        @unique // One payment per booking
+  bookingId String        // Removed @unique to allow both DEPOSIT and BALANCE
   vendorId  String
-  amount    Int           // Kobo — must match Booking.depositAmount
+  amount    Int           // Kobo
   currency  String        @default("NGN")
   flwRef    String?       // Flutterwave flw_ref
-  txRef     String        @unique // Matches Booking.txRef
+  txRef     String        @unique // Matches Booking.txRef or Invoice.txRef
+  type      PaymentType   @default(DEPOSIT)
   status    PaymentStatus @default(PENDING)
   paidAt    DateTime?
 

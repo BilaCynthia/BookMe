@@ -93,8 +93,8 @@ export default function SignupPage() {
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-5">
-        <div className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-6">
+        <div className="space-y-6">
           <Input
             id="name"
             name="name"

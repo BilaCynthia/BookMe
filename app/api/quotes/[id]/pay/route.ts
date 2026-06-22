@@ -21,7 +21,7 @@ export async function POST(_request: NextRequest, context: RouteContext) {
     const quote = await prisma.quoteRequest.findUnique({
       where: { id },
       include: {
-        vendor: { select: { id: true, name: true, isActive: true } },
+        vendor: { select: { id: true, name: true, isActive: true, flwSubaccountId: true } },
         service: { select: { id: true, name: true, isActive: true } },
       },
     })
@@ -111,6 +111,7 @@ export async function POST(_request: NextRequest, context: RouteContext) {
       serviceDescription: quote.service.name,
       redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/booking/${booking.reference}/confirmation`,
       meta: { booking_reference: booking.reference, quote_id: id },
+      subaccountId: quote.vendor.flwSubaccountId || undefined,
     })
 
     if (paymentResult.status === "error") {

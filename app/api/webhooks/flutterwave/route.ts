@@ -68,11 +68,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Verification failed" }, { status: 400 })
     }
 
-    // Check against expected deposit amount in DB
-    const booking = await prisma.booking.findUnique({
-      where: { txRef },
-      select: { depositAmount: true },
-    })
+    const isBalance = txRef.startsWith("bookme-balance-")
+
+    // Check against expected amount in DB
+    let booking;
+    if (isBalance) {
+      const bookingId = txRef.split("-")[2]
+      booking = await prisma.booking.findUnique({
+        where: { id: bookingId },
+      })
+    } else {
+      booking = await prisma.booking.findUnique({
+        where: { txRef },
+      })
+    }
 
     if (!booking) {
       logger.error("webhook.booking_not_found", new Error("Booking missing"), { txRef })
@@ -84,7 +93,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify amount strictly
-    const expectedAmountNaira = booking.depositAmount / 100
+    const expectedAmountNaira = isBalance 
+      ? ((booking.basePrice - booking.depositAmount) / 100) 
+      : (booking.depositAmount / 100)
+
     if (verification.amountNaira < expectedAmountNaira) {
       logger.warn("webhook.amount_mismatch", { 
         txRef, 
@@ -98,8 +110,36 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: "amount_mismatch_ignored" }, { status: 200 })
     }
 
-    // 4. Confirm Booking & Lock Slot
-    await confirmBooking(txRef, String(flutterwaveId), webhookEvent.id)
+    // 4. Confirm Booking or Mark Balance Paid
+    if (isBalance) {
+      await prisma.$transaction(async (tx) => {
+        await tx.booking.update({
+          where: { id: booking.id },
+          data: { balancePaid: true, balancePaidAt: new Date() }
+        })
+        
+        await tx.payment.create({
+          data: {
+            bookingId: booking.id,
+            vendorId: booking.vendorId,
+            amount: booking.basePrice - booking.depositAmount,
+            currency: "NGN",
+            txRef: txRef,
+            flwRef: String(flutterwaveId),
+            type: "BALANCE",
+            status: "SUCCESS"
+          }
+        })
+        
+        await tx.webhookEvent.update({
+          where: { id: webhookEvent.id },
+          data: { processed: true, processedAt: new Date() }
+        })
+      })
+      logger.info("webhook.balance_paid", { txRef, bookingId: booking.id })
+    } else {
+      await confirmBooking(txRef, String(flutterwaveId), webhookEvent.id)
+    }
 
     return NextResponse.json({ status: "success" }, { status: 200 })
   } catch (error) {

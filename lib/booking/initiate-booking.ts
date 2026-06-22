@@ -29,7 +29,7 @@ export async function initiateBooking(
   const [vendor, service] = await Promise.all([
     prisma.vendor.findUnique({
       where: { id: params.vendorId, isActive: true },
-      select: { id: true, name: true, contactEmail: true },
+      select: { id: true, name: true, contactEmail: true, flwSubaccountId: true },
     }),
     prisma.service.findUnique({
       where: { id: params.serviceId, vendorId: params.vendorId, isActive: true },
@@ -104,6 +104,7 @@ export async function initiateBooking(
     serviceDescription: service.name,
     redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/booking/${booking.reference}/confirmation`,
     meta: { booking_reference: booking.reference },
+    subaccountId: vendor.flwSubaccountId || undefined,
   })
 
   if (paymentResult.status === "error") {

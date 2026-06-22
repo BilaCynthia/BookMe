@@ -59,8 +59,8 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-5">
-        <div className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-6">
+        <div className="space-y-6">
           <Input
             id="email"
             name="email"
@@ -72,7 +72,7 @@ export default function LoginPage() {
             className="h-12 rounded-2xl bg-background/50 border-border/40 focus:border-primary focus:bg-background transition-all"
             required
           />
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Input
               id="password"
               name="password"
