@@ -1,25 +1,19 @@
-import dynamic from "next/dynamic"
 import { Hero } from "@/components/landing/Hero"
 import { FadeIn } from "@/components/ui/FadeIn"
-
-// Lazily load all below-the-fold sections. 
-// This drastically speeds up initial development compilation and production TTI (Time to Interactive).
-const ProblemSection = dynamic(() => import("@/components/landing/ProblemSection").then(mod => mod.ProblemSection))
-const HowItWorks = dynamic(() => import("@/components/landing/HowItWorks").then(mod => mod.HowItWorks))
-const Features = dynamic(() => import("@/components/landing/Features").then(mod => mod.Features))
-const VendorCategories = dynamic(() => import("@/components/landing/VendorCategories").then(mod => mod.VendorCategories))
-const ForClients = dynamic(() => import("@/components/landing/ForClients").then(mod => mod.ForClients))
-const Testimonials = dynamic(() => import("@/components/landing/Testimonials").then(mod => mod.Testimonials))
-const Pricing = dynamic(() => import("@/components/landing/Pricing").then(mod => mod.Pricing))
-const FAQ = dynamic(() => import("@/components/landing/FAQ").then(mod => mod.FAQ))
-const FinalCTA = dynamic(() => import("@/components/landing/FinalCTA").then(mod => mod.FinalCTA))
+import { ProblemSection } from "@/components/landing/ProblemSection"
+import { HowItWorks } from "@/components/landing/HowItWorks"
+import { Features } from "@/components/landing/Features"
+import { VendorCategories } from "@/components/landing/VendorCategories"
+import { ForClients } from "@/components/landing/ForClients"
+import { Testimonials } from "@/components/landing/Testimonials"
+import { Pricing } from "@/components/landing/Pricing"
+import { FAQ } from "@/components/landing/FAQ"
+import { FinalCTA } from "@/components/landing/FinalCTA"
 
 export default function LandingPage() {
   return (
     <>
-      <FadeIn direction="up" duration={1.2} viewAmount="some">
-        <Hero />
-      </FadeIn>
+      <Hero />
       <FadeIn>
         <ProblemSection />
       </FadeIn>

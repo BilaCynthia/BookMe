@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Bell, Check, Circle, Trash2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 
 type Notification = {
@@ -21,6 +22,7 @@ export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   useEffect(() => {
     fetchNotifications()
@@ -78,6 +80,7 @@ export function NotificationBell() {
 
   const markAllAsRead = async () => {
     setIsLoading(true)
+    setIsOpen(false)
     try {
       await fetch("/api/notifications", {
         method: "PATCH",
@@ -130,6 +133,9 @@ export function NotificationBell() {
       markAsRead(notification.id)
     }
     setIsOpen(false)
+    if (notification.link) {
+      router.push(notification.link)
+    }
   }
 
   return (
@@ -186,14 +192,12 @@ export function NotificationBell() {
             ) : (
               <div className="divide-y divide-border/30">
                 {notifications.map((notification) => {
-                  const Wrapper = notification.link ? Link : "div"
                   return (
-                    <Wrapper
+                    <div
                       key={notification.id}
-                      href={notification.link || "#"}
                       onClick={() => handleNotificationClick(notification)}
                       className={cn(
-                        "block p-4 transition-colors hover:bg-muted/30",
+                        "cursor-pointer block p-4 transition-colors hover:bg-muted/30",
                         !notification.isRead && "bg-primary/5"
                       )}
                     >
@@ -229,7 +233,7 @@ export function NotificationBell() {
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
-                    </Wrapper>
+                    </div>
                   )
                 })}
               </div>
