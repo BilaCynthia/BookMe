@@ -1,5 +1,0 @@
-[route.ts] DATABASE_URL: postgresql://neondb_owner:npg_iWG7Fl2QDdaw@ep-lingering-glitter-apzt1bd5-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-[route.ts] prisma is proxy: true
-[db.ts] Module imported! process.env.DATABASE_URL = postgresql://neondb_owner:npg_iWG7Fl2QDdaw@ep-lingering-glitter-apzt1bd5-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-[route.ts] DATABASE_URL: postgresql://neondb_owner:npg_iWG7Fl2QDdaw@ep-lingering-glitter-apzt1bd5-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-[route.ts] prisma is proxy: true
