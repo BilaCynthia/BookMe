@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Mail, CheckCircle2 } from "lucide-react"
 
-export default function ClientPortalLoginPage() {
+function ClientPortalLoginContent() {
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState(searchParams.get("error") || "")
@@ -115,5 +115,13 @@ export default function ClientPortalLoginPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function ClientPortalLoginPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Loading...</div>}>
+      <ClientPortalLoginContent />
+    </React.Suspense>
   )
 }

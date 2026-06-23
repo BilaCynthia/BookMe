@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { decode, encode } from "next-auth/jwt"
 import { logger } from "@/lib/logger"
 
+export const dynamic = "force-dynamic"
+
 /**
  * GET /api/portal/verify
  * Verifies the magic link token and issues a session cookie.
