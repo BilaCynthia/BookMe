@@ -1,3 +1,4 @@
+import { AvailabilityStatus } from "@prisma/client"
 import { prisma } from "@/lib/db"
 
 /**
@@ -56,7 +57,7 @@ export async function updateSlotStatus(
 
   const totalOccupied = pendingBookings + confirmedBookings
 
-  let newStatus = 'OPEN'
+  let newStatus: AvailabilityStatus = 'OPEN'
   if (totalOccupied >= capacity) {
     if (pendingBookings > 0 && confirmedBookings < capacity) {
       newStatus = 'PENDING_LOCK'
@@ -68,7 +69,7 @@ export async function updateSlotStatus(
   if (newStatus !== slot.status) {
     await tx.availabilitySlot.update({
       where: { id: slot.id },
-      data: { status: newStatus as any }
+      data: { status: newStatus }
     })
   }
 }
