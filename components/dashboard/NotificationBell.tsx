@@ -187,7 +187,7 @@ export function NotificationBell() {
                   <Bell className="h-6 w-6" />
                 </div>
                 <p className="text-sm font-medium text-foreground">No notifications yet</p>
-                <p className="text-xs text-subtle mt-1">We'll let you know when you get a booking or quote.</p>
+                <p className="text-xs text-subtle mt-1">We&apos;ll let you know when you get a booking or quote.</p>
               </div>
             ) : (
               <div className="divide-y divide-border/30">

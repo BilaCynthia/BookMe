@@ -30,8 +30,8 @@ export default async function VendorProfilePage({
         }
       },
     })
-  } catch (error: any) {
-    return <div className="p-10 text-red-500 font-mono">DATABASE CRASH: {error.message || String(error)}</div>
+  } catch (error: unknown) {
+    return <div className="p-10 text-red-500 font-mono">DATABASE CRASH: {(error as Error).message || String(error)}</div>
   }
 
   if (!vendor) {

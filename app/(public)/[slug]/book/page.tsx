@@ -29,8 +29,8 @@ export default async function BookingPage({
     ])
     vendor = results[0]
     service = results[1]
-  } catch (error: any) {
-    return <div className="p-10 text-red-500">DATABASE ERROR: {error.message}</div>
+  } catch (error: unknown) {
+    return <div className="p-10 text-red-500">DATABASE ERROR: {(error as Error).message || String(error)}</div>
   }
 
   if (!vendor || !service || service.vendorId !== vendor.id) {

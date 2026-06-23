@@ -41,8 +41,8 @@ export function PayoutSettingsCard({ hasSubaccount }: PayoutSettingsCardProps) {
 
       setSuccess(true)
       router.refresh()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError((err as Error).message || String(err))
     } finally {
       setIsLoading(false)
     }
@@ -72,7 +72,7 @@ export function PayoutSettingsCard({ hasSubaccount }: PayoutSettingsCardProps) {
           Set up Payouts
         </CardTitle>
         <CardDescription>
-          Enter your Nigerian bank account details. We will automatically route 95% of your clients' deposits directly to this account upon booking confirmation.
+          Enter your Nigerian bank account details. We will automatically route 95% of your clients&apos; deposits directly to this account upon booking confirmation.
         </CardDescription>
       </CardHeader>
       <CardContent>

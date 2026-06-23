@@ -43,8 +43,8 @@ export function ReviewForm({ bookingId }: ReviewFormProps) {
       }
 
       router.refresh()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError((err as Error).message || String(err))
       setIsLoading(false)
     }
   }

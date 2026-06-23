@@ -35,8 +35,8 @@ export default function ClientPortalLoginPage() {
       }
 
       setSuccess(true)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError((err as Error).message || String(err))
     } finally {
       setIsLoading(false)
     }
@@ -61,7 +61,7 @@ export default function ClientPortalLoginPage() {
               <div className="space-y-2">
                 <h3 className="text-xl font-bold text-foreground">Check your email</h3>
                 <p className="text-subtle">
-                  We've sent a magic link to your inbox. Click the link to securely sign in.
+                  We&apos;ve sent a magic link to your inbox. Click the link to securely sign in.
                 </p>
               </div>
               <p className="text-xs text-muted-foreground pt-4">

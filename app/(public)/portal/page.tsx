@@ -84,7 +84,7 @@ export default async function ClientPortalDashboard() {
             <CardContent className="flex flex-col items-center justify-center py-20 text-center">
               <Calendar className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
               <h3 className="text-lg font-semibold">No bookings found</h3>
-              <p className="text-subtle mt-2">You don't have any bookings associated with this email address.</p>
+              <p className="text-subtle mt-2">You don&apos;t have any bookings associated with this email address.</p>
             </CardContent>
           </Card>
         ) : (

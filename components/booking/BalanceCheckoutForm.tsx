@@ -33,8 +33,8 @@ export function BalanceCheckoutForm({ bookingId }: BalanceCheckoutFormProps) {
         // Redirect to Flutterwave secure checkout
         window.location.href = data.paymentUrl
       }
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError((err as Error).message || String(err))
       setIsLoading(false)
     }
   }
