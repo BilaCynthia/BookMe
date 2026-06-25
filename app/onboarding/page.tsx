@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { SessionProvider, useSession } from "next-auth/react"
 import { CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/Button"
@@ -11,7 +12,7 @@ import { cn } from "@/lib/utils"
 
 const categories = [
   { value: "PHOTOGRAPHER", label: "Photographer", image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=400" },
-  { value: "VIDEOGRAPHER", label: "Videographer", image: "https://images.unsplash.com/photo-1589882414002-c11df53bb281?auto=format&fit=crop&q=80&w=400" },
+  { value: "VIDEOGRAPHER", label: "Videographer", image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=400" },
   { value: "DECORATOR", label: "Decorator", image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=400" },
   { value: "CATERER", label: "Caterer", image: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&q=80&w=400" },
   { value: "MC_DJ", label: "MC / DJ", image: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=400" },
@@ -20,8 +21,9 @@ const categories = [
   { value: "OTHER", label: "Other", image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=400" },
 ]
 
-export default function OnboardingPage() {
+function OnboardingForm() {
   const router = useRouter()
+  const { update } = useSession()
   const [step, setStep] = React.useState(1)
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState("")
@@ -73,6 +75,8 @@ export default function OnboardingPage() {
         setIsLoading(false)
         return
       }
+
+      await update({ profileCompleted: true })
 
       router.push("/dashboard")
       router.refresh()
@@ -236,5 +240,13 @@ export default function OnboardingPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function OnboardingPage() {
+  return (
+    <SessionProvider>
+      <OnboardingForm />
+    </SessionProvider>
   )
 }

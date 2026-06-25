@@ -6,12 +6,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Mail, CheckCircle2 } from "lucide-react"
+import { validateEmail } from "@/lib/utils"
 
 function ClientPortalLoginContent() {
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState(searchParams.get("error") || "")
   const [success, setSuccess] = React.useState(false)
+  const [email, setEmail] = React.useState("")
+  const [emailTouched, setEmailTouched] = React.useState(false)
+  const emailError = emailTouched ? validateEmail(email) : ""
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -96,6 +100,10 @@ function ClientPortalLoginContent() {
                         required 
                         className="pl-10 h-12 rounded-xl"
                         disabled={isLoading}
+                        value={email}
+                        onChange={(e) => { setEmail(e.target.value); if (!emailTouched) setEmailTouched(true) }}
+                        onBlur={() => setEmailTouched(true)}
+                        error={emailError}
                       />
                     </div>
                   </div>

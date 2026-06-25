@@ -7,11 +7,15 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
+import { validateEmail } from "@/lib/utils"
 
 export default function SignupPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState("")
+  const [email, setEmail] = React.useState("")
+  const [emailTouched, setEmailTouched] = React.useState(false)
+  const emailError = emailTouched ? validateEmail(email) : ""
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -113,6 +117,10 @@ export default function SignupPage() {
             placeholder="m@example.com"
             autoComplete="email"
             disabled={isLoading}
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); if (!emailTouched) setEmailTouched(true) }}
+            onBlur={() => setEmailTouched(true)}
+            error={emailError}
             className="h-12 rounded-2xl bg-background/50 border-border/40 focus:border-primary focus:bg-background transition-all"
             required
           />

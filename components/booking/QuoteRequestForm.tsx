@@ -5,6 +5,7 @@ import { format, parseISO } from "date-fns"
 import { Calendar, User, Send, ChevronRight, ChevronLeft, CheckCircle2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
+import { validateEmail } from "@/lib/utils"
 
 interface QuoteRequestFormProps {
   vendor: { id: string; name: string }
@@ -26,6 +27,8 @@ export function QuoteRequestForm({ vendor, service, availableSlots }: QuoteReque
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [isSuccess, setIsSuccess] = React.useState(false)
+  const [emailTouched, setEmailTouched] = React.useState(false)
+  const emailError = emailTouched ? validateEmail(clientEmail) : ""
 
   const handleNext = () => {
     setError(null)
@@ -38,8 +41,9 @@ export function QuoteRequestForm({ vendor, service, availableSlots }: QuoteReque
         setError("Please fill in all required fields.")
         return
       }
-      if (!clientEmail.includes("@")) {
+      if (!clientEmail.includes("@") || validateEmail(clientEmail)) {
         setError("Please enter a valid email address.")
+        setEmailTouched(true)
         return
       }
     }
@@ -197,7 +201,7 @@ export function QuoteRequestForm({ vendor, service, availableSlots }: QuoteReque
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Email Address <span className="text-destructive">*</span></label>
-              <Input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="jane@example.com" />
+              <Input type="email" value={clientEmail} onChange={(e) => { setClientEmail(e.target.value); if (!emailTouched) setEmailTouched(true) }} onBlur={() => setEmailTouched(true)} error={emailError} placeholder="jane@example.com" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Phone Number <span className="text-destructive">*</span></label>

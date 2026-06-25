@@ -5,12 +5,15 @@ import Link from "next/link"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { ArrowLeft, CheckCircle2 } from "lucide-react"
+import { validateEmail } from "@/lib/utils"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = React.useState("")
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isSubmitted, setIsSubmitted] = React.useState(false)
   const [error, setError] = React.useState("")
+  const [emailTouched, setEmailTouched] = React.useState(false)
+  const emailError = emailTouched ? validateEmail(email) : ""
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -81,7 +84,9 @@ export default function ForgotPasswordPage() {
                   autoCorrect="off"
                   disabled={isSubmitting}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); if (!emailTouched) setEmailTouched(true) }}
+                  onBlur={() => setEmailTouched(true)}
+                  error={emailError}
                   className="h-12 rounded-xl bg-surface border-border/60 focus:border-primary transition-colors"
                   required
                 />

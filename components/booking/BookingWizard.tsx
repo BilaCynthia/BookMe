@@ -6,6 +6,7 @@ import { Calendar, User, CreditCard, ChevronRight, ChevronLeft, Loader2, AlertCi
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Card, CardContent } from "@/components/ui/Card"
+import { validateEmail } from "@/lib/utils"
 
 interface BookingWizardProps {
   vendor: { id: string; name: string }
@@ -25,6 +26,8 @@ export function BookingWizard({ vendor, service, availableSlots }: BookingWizard
   
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [emailTouched, setEmailTouched] = React.useState(false)
+  const emailError = emailTouched ? validateEmail(clientEmail) : ""
 
   const depositAmount = Math.floor((service.basePrice * service.depositPercentage) / 100)
   
@@ -39,8 +42,9 @@ export function BookingWizard({ vendor, service, availableSlots }: BookingWizard
         setError("Please fill in all required fields.")
         return
       }
-      if (!clientEmail.includes("@")) {
+      if (!clientEmail.includes("@") || validateEmail(clientEmail)) {
         setError("Please enter a valid email address.")
+        setEmailTouched(true)
         return
       }
     }
@@ -199,7 +203,9 @@ export function BookingWizard({ vendor, service, availableSlots }: BookingWizard
               <Input 
                 type="email"
                 value={clientEmail} 
-                onChange={e => setClientEmail(e.target.value)} 
+                onChange={e => { setClientEmail(e.target.value); if (!emailTouched) setEmailTouched(true) }}
+                onBlur={() => setEmailTouched(true)}
+                error={emailError}
                 placeholder="jane@example.com" 
               />
             </div>
